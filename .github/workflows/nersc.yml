@@ -27,6 +27,6 @@ jobs:
       - name: Create PR branch
         run: |
           git fetch origin pull/${PR_NUMBER}/head:PR-${PR_SHA}
-          git remote add gitlab https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
+          git remote add nersc https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
           git checkout PR-${PR_SHA}
-          git push --set-upstream origin PR-${PR_SHA}
+          git push --set-upstream nersc PR-${PR_SHA}
