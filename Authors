@@ -1,16 +1,18 @@
 Authors of the Proactive Data Containers (PDC) software library and utilities:
 ------------------------------------------------------------------------------
-
-Contact: Suren Byna (SByna@lbl.gov)
-
+ 
+Contact: Suren Byna <SByna@lbl.gov> 
+  
 Lawrence Berkeley National Laboratory (LBNL)
 --------------------------------------------
 Houjun Tang
 Qiao Kang
 Bin Dong
 Quincey Koziol
-Suren Byna
-
+Suren Byna 
+Jean Luca Bez
+Wei Zheng
+ 
 The HDF Group (THG)
 -------------------
 Kimmy Mu
@@ -21,4 +23,3 @@ Argonne National Laboratory (ANL)
 ---------------------------------
 François Tessier
 Venkat Vishwanath
-
