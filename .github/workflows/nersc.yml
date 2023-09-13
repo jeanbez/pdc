@@ -20,9 +20,9 @@ jobs:
     timeout-minutes: 2
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          submodules: false
+          ref: ${{ github.event.pull_request.head.sha || github.ref 
 
       - name: Setup git
         run: |
@@ -31,8 +31,7 @@ jobs:
     
       - name: Create PR branch
         run: |
-          git fetch origin pull/${PR_NUMBER}/head:PR-${PR_NUMBER}
-          git remote add gitlab https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
-          echo "https://${NERSC_GITLAB_TOKEN_NAME}:----@${NERSC_GITLAB_URL}"
-          git checkout PR-${PR_NUMBER}
-          git push gitlab -u PR-${PR_NUMBER}
+          PR_SHA=$(git rev-parse --short "$GITHUB_SHA")
+          git remote add gitlab https://${{ secrets.NERSC_GITLAB_TOKEN_NAME }}:${{ secrets.NERSC_GITLAB_TOKEN }}@${{ secrets.NERSC_GITLAB_URL }}
+          git checkout PR-${PR_SHA}
+          git push gitlab -u PR-${PR_SHA}
