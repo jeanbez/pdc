@@ -32,6 +32,7 @@ jobs:
       - name: Create PR branch
         run: |
           PR_SHA=$(git rev-parse --short "$GITHUB_SHA")
+          git fetch origin pull/${PR_NUMBER}/head:PR-${PR_NUMBER}
           git remote add gitlab https://${{ secrets.NERSC_GITLAB_TOKEN_NAME }}:${{ secrets.NERSC_GITLAB_TOKEN }}@${{ secrets.NERSC_GITLAB_URL }}
           git checkout PR-${PR_SHA}
           git push gitlab -u PR-${PR_SHA}
