@@ -34,4 +34,4 @@ jobs:
           git fetch origin pull/${PR_NUMBER}/head:PR-${PR_NUMBER}
           git remote add gitlab https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
           git checkout PR-${PR_NUMBER}
-          git push --set-upstream origin PR-${PR_NUMBER}
+          git push --set-upstream gitlab PR-${PR_NUMBER}
