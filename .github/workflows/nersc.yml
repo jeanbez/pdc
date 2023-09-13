@@ -5,10 +5,6 @@ on:
   pull_request:
     branches: [ stable, develop ]
 
-env:
-  PR_NUMBER: ${{ github.event.number }}
-  PR_SHA: ${{ github.event.pull_request.head.sha }}
-
 jobs:
   sync-with-nersc:
     runs-on: ubuntu-20.04
@@ -26,6 +22,7 @@ jobs:
     
       - name: Create PR branch
         run: |
+          PR_SHA=$(git rev-parse --short "$GITHUB_SHA")
           git fetch origin pull/${PR_NUMBER}/head:PR-${PR_SHA}
           git remote add nersc https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
           git checkout PR-${PR_SHA}
