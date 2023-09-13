@@ -33,5 +33,6 @@ jobs:
         run: |
           git fetch origin pull/${PR_NUMBER}/head:PR-${PR_NUMBER}
           git remote add gitlab https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
+          echo "https://${NERSC_GITLAB_TOKEN_NAME}:----@${NERSC_GITLAB_URL}"
           git checkout PR-${PR_NUMBER}
           git push gitlab -u PR-${PR_NUMBER}
