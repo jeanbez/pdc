@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [ stable, develop ]
 
+env:
+  PR_NUMBER: ${{ github.event.number }}
+
 jobs:
   sync-with-nersc:
     runs-on: ubuntu-20.04
