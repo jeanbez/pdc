@@ -21,7 +21,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-      
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+
       - name: Setup git
         run: |
           git config --global user.name "PDC BOT"
