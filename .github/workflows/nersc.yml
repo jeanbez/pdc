@@ -7,6 +7,7 @@ on:
 
 env:
   PR_NUMBER: ${{ github.event.number }}
+  PR_SHA: ${{ github.event.pull_request.head.sha }}
 
 jobs:
   sync-with-nersc:
@@ -25,7 +26,7 @@ jobs:
     
       - name: Create PR branch
         run: |
-          git fetch origin pull/${PR_NUMBER}/head:PR-${PR_NUMBER}
+          git fetch origin pull/${PR_NUMBER}/head:PR-${PR_SHA}
           git remote add gitlab https://${NERSC_GITLAB_TOKEN_NAME}:${NERSC_GITLAB_TOKEN}@${NERSC_GITLAB_URL}
-          git checkout PR-${PR_NUMBER}
-          git push --set-upstream origin PR-${PR_NUMBER}
+          git checkout PR-${PR_SHA}
+          git push --set-upstream origin PR-${PR_SHA}
