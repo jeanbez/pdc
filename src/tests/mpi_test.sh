@@ -25,6 +25,11 @@ echo "Input arguments are the followings"
 echo $test_args
 if [ -x $test_exe ]; then echo "testing: $test_exe"; else echo "test: $test_exe not found or not and executable" && exit -2; fi
 rm -rf pdc_tmp pdc_data
+if [ -z ${AWS_TEST_BUCKET} ]
+    # For S3 tests, we need to make sure the bucket is cleared between runs
+    # Notice that instead deleting the bucket itself can take up to 2 hours before re-creating
+    aws s3 rm s3://${AWS_TEST_BUCKET} --recursive
+fi
 # START the server (in the background)
 echo "$mpi_cmd -n $n_servers $extra_cmd ./pdc_server.exe &"
 $mpi_cmd -n $n_servers $extra_cmd ./pdc_server.exe &
@@ -36,6 +41,6 @@ $mpi_cmd -n $n_client $extra_cmd $test_exe $test_args
 ret="$?"
 # and shutdown the SERVER before exiting
 echo "Close server"
-echo "$mpi_cmd -n 1 $extra_cmd ./close_server"
-$mpi_cmd -n 1 $extra_cmd ./close_server
+echo "$mpi_cmd -n $n_servers $extra_cmd ./close_server"
+$mpi_cmd -n $n_servers $extra_cmd ./close_server
 exit $ret
