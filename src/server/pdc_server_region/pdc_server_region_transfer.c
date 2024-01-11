@@ -311,7 +311,7 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     snprintf(storage_location, ADDR_MAX, "%.200s/pdc_data/%" PRIu64 "/server%d/s%04d.bin", data_path, obj_id,
              server_rank, server_rank);
     PDC_mkdir(storage_location);
-
+    // printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
     fd = open(storage_location, O_RDWR | O_CREAT, 0666);
     if (region_info->ndim == 1) {
         // printf("server I/O checkpoint 1D\n");

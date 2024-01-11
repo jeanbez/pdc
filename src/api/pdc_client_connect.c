@@ -1181,6 +1181,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     perr_t ret_value = SUCCEED;
     char   na_info_string[NA_STRING_INFO_LEN];
     char   hostname[HOSTNAME_LEN];
+    char   host_addr[ADDR_MAX];
     int    local_server_id;
     /* Set the default mercury transport
      * but enable overriding that to any of:
@@ -1189,8 +1190,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
      *   "cci+tcp"
      */
     struct hg_init_info init_info            = {0};
-    char *              default_hg_transport = "ofi+tcp";
-    char *              hg_transport;
+    char hg_transport[255] = "ofi+tcp";
 #ifdef PDC_HAS_CRAY_DRC
     uint32_t          credential, cookie;
     drc_info_handle_t credential_info;
@@ -1201,12 +1201,28 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
 
     FUNC_ENTER(NULL);
 
-    if ((hg_transport = getenv("HG_TRANSPORT")) == NULL) {
-        hg_transport = default_hg_transport;
+    int use_host = fy_document_scanf(pdc_deployment_yaml,
+        "/communication/host %s",
+        host_addr
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/communication/transport %s",
+        hg_transport
+    );
+
+    if (use_host) {
+        printf("[PDC|deployment] transport = [%s]\n", hg_transport);
+        printf("[PDC|deployment] host = [%s]\n", host_addr);
+
+        snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, host_addr, port);
+    } else {
+        // If no host IP was specified to bind to that interface, fallback to fetching the hostname
+        memset(hostname, 0, sizeof(hostname));
+        gethostname(hostname, sizeof(hostname));
+        snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, hostname, port);
     }
-    memset(hostname, 0, sizeof(hostname));
-    gethostname(hostname, sizeof(hostname));
-    sprintf(na_info_string, "%s://%s:%d", hg_transport, hostname, port);
+
     if (pdc_client_mpi_rank_g == 0) {
         printf("==PDC_CLIENT: using %.7s\n", na_info_string);
         fflush(stdout);
@@ -1391,6 +1407,8 @@ PDC_Client_init()
     char *   tmp_dir;
     uint32_t port;
     int      is_mpi_init = 0;
+
+    PDC_deployment_configure();
 
     FUNC_ENTER(NULL);
     // Get up tmp dir env var

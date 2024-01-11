@@ -58,6 +58,10 @@
 #include "pdc_server_region_cache.h"
 #include "pdc_server_region_transfer_metadata_query.h"
 
+#ifdef PDC_HAS_S3
+#include "pdc_e2o/aws/pdc_e2o_s3.h"
+#endif
+
 #ifdef PDC_HAS_CRAY_DRC
 #include <rdmacred.h>
 #endif
@@ -787,6 +791,7 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     char                self_addr_string[ADDR_MAX];
     char                na_info_string[NA_STRING_INFO_LEN];
     char                hostname[HOSTNAME_LEN];
+    char                host_addr[ADDR_MAX];
     struct hg_init_info init_info = {0};
 
     /* Set the default mercury transport
@@ -795,8 +800,7 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
      *   "ofi+tcp"
      *   "cci+tcp"
      */
-    char *default_hg_transport = "ofi+tcp";
-    char *hg_transport;
+    char hg_transport[255] = "ofi+tcp";
 #ifdef PDC_HAS_CRAY_DRC
     uint32_t          credential = 0, cookie;
     drc_info_handle_t credential_info;
@@ -804,6 +808,19 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     char *            auth_key;
     int               rc;
 #endif
+
+    PDC_deployment_configure();
+
+    int use_host = fy_document_scanf(pdc_deployment_yaml,
+        "/communication/host %s",
+        host_addr
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/communication/transport %s",
+        hg_transport
+    );
+
 
     FUNC_ENTER(NULL);
 
@@ -817,14 +834,26 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     all_addr_strings_g    = (char **)calloc(sizeof(char *), pdc_server_size_g);
     total_mem_usage_g += (sizeof(char) + sizeof(char *));
 
+    /* DEPRECATED
     if ((hg_transport = getenv("HG_TRANSPORT")) == NULL) {
         hg_transport = default_hg_transport;
     }
-    memset(hostname, 0, HOSTNAME_LEN);
-    gethostname(hostname, HOSTNAME_LEN - 1);
-    snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, hostname, port);
+    */
+
+    if (use_host) {
+        printf("[PDC|deployment] transport = [%s]\n", hg_transport);
+        printf("[PDC|deployment] host = [%s]\n", host_addr);
+
+        snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, host_addr, port);
+    } else {
+        // If no host IP was specified to bind to that interface, fallback to fetching the hostname
+        memset(hostname, 0, HOSTNAME_LEN);
+        gethostname(hostname, HOSTNAME_LEN - 1);
+        snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, hostname, port);
+    }
+
     if (pdc_server_rank_g == 0)
-        printf("==PDC_SERVER[%d]: using %.7s\n", pdc_server_rank_g, na_info_string);
+        printf("==PDC_SERVER[%d]: using %s\n", pdc_server_rank_g, na_info_string);
 
     // Clean up all the tmp files etc
     HG_Cleanup();
@@ -1000,6 +1029,58 @@ drc_access_again:
     // Initialize DART
     PDC_Server_dart_init();
 
+
+#ifdef PDC_HAS_S3
+    pdc_aws_config aws_s3_config;
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/region %s",
+        aws_s3_config.region
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/use_crt %d",
+        &aws_s3_config.use_crt
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/key %s",
+        aws_s3_config.key
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/secret %s",
+        aws_s3_config.secret
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/endpoint %s",
+        aws_s3_config.endpoint
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/bucket %s",
+        aws_s3_config.bucket
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/max_connections %ld",
+        &aws_s3_config.max_connections
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/throughput_target %lf",
+        &aws_s3_config.throughput_target
+    );
+
+    fy_document_scanf(pdc_deployment_yaml,
+        "/backend/s3/part_size %d",
+        &aws_s3_config.part_size
+    );
+
+    PDC_Server_aws_init(aws_s3_config);
+#endif
+    
     // PDC transfer_request infrastructures
     PDC_server_transfer_request_init();
 #ifdef PDC_SERVER_CACHE
@@ -1059,6 +1140,10 @@ PDC_Server_finalize()
     FUNC_ENTER(NULL);
 
     transfer_request_metadata_query_finalize();
+
+#ifdef PDC_HAS_S3
+    PDC_Server_aws_finalize();
+#endif
 
     // Debug: check duplicates
     if (is_debug_g == 1) {
@@ -1393,6 +1478,14 @@ PDC_Server_checkpoint()
     fwrite(checkpoint, checkpoint_size, 1, file);
 
     fclose(file);
+
+#ifdef PDC_HAS_S3
+    // Upload a copy to AWS
+    char aws_checkpoint[ADDR_MAX];
+    snprintf(aws_checkpoint, ADDR_MAX, "pdc-metadata-%d.checkpoint", pdc_server_rank_g);
+
+    PutObject(PDC_AWS_S3_DEFAULT_BUCKET, aws_checkpoint, checkpoint_file);
+#endif
 
     if (use_tmpfs) {
 #ifdef PDC_TIMING

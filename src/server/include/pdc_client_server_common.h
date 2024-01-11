@@ -39,6 +39,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <libfyaml.h>
 
 #ifdef ENABLE_MULTITHREAD
 hg_thread_mutex_t pdc_client_info_mutex_g;
@@ -46,6 +47,10 @@ hg_thread_mutex_t lock_list_mutex_g;
 hg_thread_mutex_t meta_buf_map_mutex_g;
 hg_thread_mutex_t meta_obj_map_mutex_g;
 #endif
+
+struct fy_document *pdc_deployment_yaml;
+
+#define pdc_deployment_yaml_name_g "pdc.yaml"
 
 #define PAGE_SIZE                    4096
 #define ADDR_MAX                     1024
@@ -4833,5 +4838,8 @@ hg_return_t PDC_Client_recv_nhits(const struct hg_cb_info *callback_info);
 perr_t PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *obj_dims,
                                       struct pdc_region_info *region_info, void *buf, size_t unit,
                                       int is_write);
+
+
+void PDC_deployment_configure();
 
 #endif /* PDC_CLIENT_SERVER_COMMON_H */

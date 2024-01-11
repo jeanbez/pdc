@@ -1,0 +1,31 @@
+server:
+  debug: false
+  threads: 1
+  checkpoint:
+    enabled: true
+    path: /path/to/tmpfs
+
+communication:
+  hostname: localhost
+  transport: ofi+tcp
+  port: 9099
+  cray_drc: 0
+
+optimization:
+  data_sieving: false
+  ondemand_lookup: true
+  build_histogram: false
+  build_fastbit_index: false
+  use_fastbit_index: false
+
+backend:
+  lustre:
+    path: /path/to/temporary/dir
+    stripe_size: 1024
+    stripe_count: 4
+  burst-buffer:
+    write_percentage: 80
+  s3:
+    token: TOKEN
+    password: PASS
+    bucket: BUCKET

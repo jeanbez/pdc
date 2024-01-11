@@ -36,10 +36,17 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 # Project Name : PDC, Programming Language : C
-project(PDC C)
+project(PDC C CXX)
+
+# Set the C++ standard to 11 for AWS
+set(CMAKE_CXX_STANDARD 11)
 
 # include CheckSymbolExists module
 include(CheckSymbolExists)
+
+include(ExternalProject)
+
+set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/dependencies)
 
 # CMake will search for any header files under the project root directory.
 include_directories(
@@ -304,6 +311,19 @@ if(PDC_USE_SHARED_SERVER)
 endif()
 
 #-----------------------------------------------------------------------------
+# Configuration option
+#-----------------------------------------------------------------------------
+find_package(FYAML REQUIRED)
+
+if(FYAML_FOUND)
+  include_directories(${FYAML_INCLUDE_DIRS})
+  set(PDC_EXT_LIB_DEPENDENCIES
+    ${PDC_EXT_LIB_DEPENDENCIES}
+    ${FYAML_LIBRARIES}
+  )
+endif()
+
+#-----------------------------------------------------------------------------
 # DRC option
 #-----------------------------------------------------------------------------
 option(PDC_USE_CRAY_DRC
@@ -467,12 +487,19 @@ if(PDC_ENABLE_FASTBIT)
     set(ENABLE_FASTBIT 1)
 endif()
 
-
-# Metadata with RocksDB
 #-----------------------------------------------------------------------------
-option(PDC_ENABLE_ROCKSDB "Enable RocksDB (experimental)." OFF)
-if(PDC_ENABLE_ROCKSDB)
-    set(ENABLE_ROCKSDB 1)
+# AWS backend
+#-----------------------------------------------------------------------------
+
+option(PDC_ENABLE_S3 "Enable AWS S3 backend." OFF)
+if(PDC_ENABLE_S3)
+  set(SERVICE_COMPONENTS iam s3 s3-crt sts)
+
+  # Find the AWS SDK for C++ package.
+  find_package(AWSSDK REQUIRED COMPONENTS ${SERVICE_COMPONENTS})
+
+  message(STATUS "AWS backend support enabled")
+  set(PDC_HAS_S3 1)
 endif()
 
 # Metadata with SQLite

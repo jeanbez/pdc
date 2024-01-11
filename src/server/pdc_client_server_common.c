@@ -7389,3 +7389,19 @@ PDCselection_print_all(pdc_selection_t *sel)
 
     FUNC_LEAVE_VOID;
 }
+
+void
+PDC_deployment_configure()
+{
+    char path[ADDR_MAX];
+
+    sprintf(path, "%s/%s", getenv("PDC_CONFIGURATION"), pdc_deployment_yaml_name_g);
+
+    pdc_deployment_yaml = fy_document_build_from_file(NULL, path);
+
+    if (!pdc_deployment_yaml) {
+        fprintf(stderr, "failed to read PDC deployment configuration");
+
+        exit(1);
+    }
+}
