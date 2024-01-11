@@ -41,13 +41,8 @@ bool DeleteObject(char* objectKey, char* fromBucket);
 #ifdef __cplusplus
 } // extern "C"
 
-//bool use_crt = false;
-
 std::shared_ptr<Aws::S3::S3Client> aws_client;
 std::shared_ptr<Aws::S3Crt::S3CrtClient> aws_crt_client;
-
-//std::mutex upload_mutex;
-//std::condition_variable upload_variable;
 
 pdc_aws_config aws_s3_config;
 

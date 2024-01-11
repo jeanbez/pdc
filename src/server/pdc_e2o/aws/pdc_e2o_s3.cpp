@@ -134,10 +134,7 @@ bool PutObject(char *bucketName, char *objectName, char *fileName) {
         if (!outcome.IsSuccess()) {
             std::cerr << "[AWS-S3] Error: PutObjectBuffer: " <<
                       outcome.GetError().GetMessage() << std::endl;
-        } /*
-        else {
-            std::cout << "Success: Object '" << objectName << "' uploaded to bucket '" << bucketName << "'.";
-        } */
+        }
 
         return outcome.IsSuccess();
     }
@@ -160,8 +157,6 @@ bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t 
         Aws::S3Crt::Model::PutObjectOutcome outcome = aws_crt_client->PutObject(request);
 
         if (outcome.IsSuccess()) {
-            // std::cout << "Object added." << std::endl << std::endl;
-
             return true;
         }
         else {
@@ -185,83 +180,17 @@ bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t 
         data->write(reinterpret_cast<char*>(buffer), size);
         request.SetBody(data);
 
-        Aws::Http::HeaderValueCollection metadata;
-        //metadata.insert(std::pair<Aws::String, Aws::String>("user", "jeanbez"));
-        //metadata.insert(std::pair<Aws::String, Aws::String>("created", "2023-11-07"));
-        //metadata.insert(std::pair<Aws::String, Aws::String>("email", "jlbez@lbl.gov"));
-        //metadata.insert(std::pair<Aws::String, Aws::String>("id", "0123456789"));
-
-        request.SetMetadata(metadata);
-
         Aws::S3::Model::PutObjectOutcome outcome = aws_client->PutObject(request);
 
         if (!outcome.IsSuccess()) {
             std::cerr << "[AWS-S3] Error: PutObjectBuffer: " <<
                       outcome.GetError().GetMessage() << std::endl;
-        } /*
-        else {
-            std::cout << "Success: Object '" << objectName << "' uploaded to bucket '" << bucketName << "'.";
-        } */
+        }
 
         return outcome.IsSuccess();
     }
 
 }
-/*
-void PutObjectAsyncFinished(const Aws::S3::S3Client *s3Client,
-                            const Aws::S3::Model::PutObjectRequest &request,
-                            const Aws::S3::Model::PutObjectOutcome &outcome,
-                            const std::shared_ptr<const Aws::Client::AsyncCallerContext> &context) {
-    if (outcome.IsSuccess()) {
-        std::cout << "Success: PutObjectAsyncFinished: Finished uploading '"
-                  << context->GetUUID() << "'." << std::endl;
-    }
-    else {
-        std::cerr << "Error: PutObjectAsyncFinished: " <<
-                  outcome.GetError().GetMessage() << std::endl;
-    }
-
-    // Unblock the thread that is waiting for this function to complete.
-    upload_variable.notify_one();
-}
-
-bool PutObjectBufferAsync(char *bucketName, char *objectName, void *buffer, uint64_t size, void *meta) {
-    Aws::S3::Model::PutObjectRequest request;
-    request.SetBucket(bucketName);
-    request.SetKey(objectName);
-
-    //Aws::Utils::Stream::PreallocatedStreamBuf streambuf(reinterpret_cast<unsigned char*>(buffer), size);
-    //auto preallocated_stream = Aws::MakeShared<Aws::IOStream>("", &streambuf);
-
-    //preallocated_stream->write(reinterpret_cast<char*>(buffer), size);
-
-    //request.SetBody(preallocated_stream);
-
-    auto data = Aws::MakeShared<Aws::StringStream>("", std::stringstream::in | std::stringstream::out | std::stringstream::binary);
-    data->write(reinterpret_cast<char*>(buffer), size);
-    request.SetBody(data);
-
-    Aws::Http::HeaderValueCollection metadata;
-    metadata.insert(std::pair<Aws::String, Aws::String>("user", "jeanbez"));
-    metadata.insert(std::pair<Aws::String, Aws::String>("created", "2023-11-07"));
-    metadata.insert(std::pair<Aws::String, Aws::String>("email", "jlbez@lbl.gov"));
-    metadata.insert(std::pair<Aws::String, Aws::String>("id", "0123456789"));
-
-    request.SetMetadata(metadata);
-
-    // Create and configure the context for the asynchronous put object request.
-    std::shared_ptr<Aws::Client::AsyncCallerContext> context =
-            Aws::MakeShared<Aws::Client::AsyncCallerContext>("PutObjectAllocationTag");
-    context->SetUUID(objectName);
-
-    // Make the asynchronous put object call. Queue the request into a 
-    // thread executor and call the PutObjectAsyncFinished function when the 
-    // operation has finished. 
-    aws_client->PutObjectAsync(request, PutObjectAsyncFinished, context);
-
-    return true;
-}
-*/
 
 uint64_t GetObjectBytes(char* objectKey, char* fromBucket, void *buffer) {
     int64_t nbytes = 0;
@@ -301,10 +230,6 @@ uint64_t GetObjectBytes(char* objectKey, char* fromBucket, void *buffer) {
     Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
 
     if (outcome.IsSuccess()) {
-       //Uncomment this line if you wish to have the contents of the file displayed. Not recommended for large files
-       // because it takes a while.
-       // std::cout << "Object content: " << outcome.GetResult().GetBody().rdbuf() << std::endl << std::endl;
-
         return nbytes;
     }
     else {
@@ -316,8 +241,6 @@ uint64_t GetObjectBytes(char* objectKey, char* fromBucket, void *buffer) {
 
 uint64_t GetSize(char* objectKey, char* fromBucket) {
     int64_t nbytes = 0;
-
-    //std::cout << "--> " << objectKey << " " << fromBucket << std::endl;
 
     if (aws_s3_config.use_crt) {
         Aws::S3Crt::Model::HeadObjectRequest headObj;
@@ -340,7 +263,6 @@ uint64_t GetSize(char* objectKey, char* fromBucket) {
         headObj.SetBucket(fromBucket);
         headObj.SetKey(objectKey);
 
-        //! Step 3: read size from object header metadata
         auto object = aws_client->HeadObject(headObj);
         if (object.IsSuccess())
         {
@@ -387,10 +309,6 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
         Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
 
         if (outcome.IsSuccess()) {
-           //Uncomment this line if you wish to have the contents of the file displayed. Not recommended for large files
-           // because it takes a while.
-           // std::cout << "Object content: " << outcome.GetResult().GetBody().rdbuf() << std::endl << std::endl;
-
             return true;
         }
         else {
@@ -424,11 +342,6 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
         request.SetKey(objectKey);
         request.SetResponseStreamFactory(AwsWriteableStreamFactory(buffer, nbytes));
 
-        // request.SetResponseStreamFactory([&buffer]() { return Aws::New<Aws::IOStream>("", &buffer); });
-
-        //Aws::S3::Model::GetObjectOutcome outcome =
-        //        s3_client.GetObject(request);
-
         // The AWS SDK creates a auto-growing StringStream by default, entailing multiple memory copies when transferring large data blocks (because of resizes).  Instead, write directly into the target data area.
 
         auto outcome = aws_client->GetObject(request); 
@@ -437,11 +350,7 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
             const Aws::S3::S3Error &err = outcome.GetError();
             std::cerr << "[AWS-S3] Error: GetObject: " <<
                       err.GetExceptionName() << ": " << err.GetMessage() << std::endl;
-        } /*
-        else {
-            std::cout << "Successfully retrieved '" << objectKey << "' from '"
-                      << fromBucket << "'." << std::endl;
-        } */
+        }
 
         return outcome.IsSuccess();
     }
@@ -451,24 +360,6 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
     int64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
-        //! Step 2: Head Object request
-        /*Aws::S3Crt::Model::HeadObjectRequest headObj;
-        headObj.SetBucket(fromBucket);
-        headObj.SetKey(objectKey);
-
-        //! Step 3: read size from object header metadata
-        auto object = aws_crt_client->HeadObject(headObj);
-        if (object.IsSuccess())
-        {
-            nbytes = object.GetResultWithOwnership().GetContentLength();
-        }
-        else
-        {
-            std::cout << "[AWS-S3] GetObjectRange - Head Object error: "
-                << object .GetError().GetExceptionName() << " - "
-                << object .GetError().GetMessage() << std::endl;
-        }*/
-
         Aws::S3Crt::Model::GetObjectRequest request;
         request.SetBucket(fromBucket);
         request.SetKey(objectKey);
@@ -478,10 +369,6 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
         Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
 
         if (outcome.IsSuccess()) {
-           //Uncomment this line if you wish to have the contents of the file displayed. Not recommended for large files
-           // because it takes a while.
-           // std::cout << "Object content: " << outcome.GetResult().GetBody().rdbuf() << std::endl << std::endl;
-
             return true;
         }
         else {
@@ -490,35 +377,11 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
             return false;
         }
     } else {
-        //! Step 2: Head Object request
-        /*Aws::S3::Model::HeadObjectRequest headObj;
-        headObj.SetBucket(fromBucket);
-        headObj.SetKey(objectKey);
-
-        //! Step 3: read size from object header metadata
-        auto object = aws_client->HeadObject(headObj);
-        if (object.IsSuccess())
-        {
-            nbytes = object.GetResultWithOwnership().GetContentLength();
-        }
-        else
-        {
-            std::cout << "[AWS-S3] GetObjectRange - Head Object error: "
-                << object .GetError().GetExceptionName() << " - "
-                << object .GetError().GetMessage() << std::endl;
-        }*/
-
         Aws::S3::Model::GetObjectRequest request;
         request.SetBucket(fromBucket);
         request.SetKey(objectKey);
         request.SetRange("bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size));
         request.SetResponseStreamFactory(AwsWriteableStreamFactory(buffer, size));
-
-        // request.SetResponseStreamFactory([&buffer]() { return Aws::New<Aws::IOStream>("", &buffer); });
-
-        //Aws::S3::Model::GetObjectOutcome outcome =
-        //        s3_client.GetObject(request);
-
         // The AWS SDK creates a auto-growing StringStream by default, entailing multiple memory copies when transferring large data blocks (because of resizes).  Instead, write directly into the target data area.
 
         auto outcome = aws_client->GetObject(request); 
@@ -527,11 +390,7 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
             const Aws::S3::S3Error &err = outcome.GetError();
             std::cerr << "[AWS-S3] Error: GetObject: " <<
                       err.GetExceptionName() << ": " << err.GetMessage() << std::endl;
-        } /*
-        else {
-            std::cout << "Successfully retrieved '" << objectKey << "' from '"
-                      << fromBucket << "'." << std::endl;
-        } */
+        }
 
         return outcome.IsSuccess();
     }
@@ -654,7 +513,6 @@ bool DeleteObject(char* objectKey, char* fromBucket) {
 }
 
 void PDC_Server_aws_init(pdc_aws_config config) {
-//void PDC_Server_aws_init(bool crt) {
     std::cout << "==AWS-S3[] Initializing..." << std::endl;
 
     options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Error;
@@ -671,10 +529,6 @@ void PDC_Server_aws_init(pdc_aws_config config) {
     credentials.SetAWSSecretKey(Aws::String(aws_s3_config.secret));
 
     if (aws_s3_config.use_crt) {
-        //const double throughput_target_gbps = 100;
-        //const uint64_t part_size = 1 * 1024 * 1024; // 1 MB
-        //const int max_connections = 50;
-
         Aws::S3Crt::ClientConfiguration ctr_config;
         if (strlen(aws_s3_config.region) == 0) {
             ctr_config.region = Aws::Region::US_WEST_1;
@@ -707,24 +561,10 @@ void PDC_Server_aws_init(pdc_aws_config config) {
         aws_client = std::make_shared<Aws::S3::S3Client>(clientConfig);
     }
 
-    // A unique_lock is a general-purpose mutex ownership wrapper allowing
-    // deferred locking, time-constrained attempts at locking, recursive
-    // locking, transfer of lock ownership, and use with
-    // condition variables.
-    // upload_mutex.lock();
-
     std::cout << "==AWS-S3[] Initialized" << std::endl;
 }
 
 void PDC_Server_aws_finalize() {
-    // While the put object operation attempt is in progress,
-    // you can perform other tasks.
-    // This example simply blocks until the put object operation
-    // attempt finishes.
-    // printf("waiting for in-flight transfers to finish...\n");
-
-    // upload_mutex.unlock();
-
     std::cout << "[AWS-S3] Finalizing..." << std::endl;
 
     // client needs to have its destructor called before shutdown occurs
