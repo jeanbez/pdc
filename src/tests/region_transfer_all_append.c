@@ -32,7 +32,7 @@
 #include <sys/time.h>
 #include "pdc.h"
 #define BUF_LEN  64
-#define OBJ_NUM  17
+#define OBJ_NUM  3
 #define REQ_SIZE 8
 
 int

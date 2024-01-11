@@ -35,7 +35,7 @@
 #define DIM1    13
 #define DIM2    24
 #define BUF_LEN (DIM0 * DIM1 * DIM2)
-#define OBJ_NUM 11
+#define OBJ_NUM 2
 // DIM2 must divide REQ_SIZE
 #define REQ_SIZE 8
 
