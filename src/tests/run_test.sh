@@ -17,7 +17,7 @@ shift
 # copy the remaining test input arguments (if any)
 if [ -x $test_exe ]; then echo "testing: $test_exe"; else echo "test: $test_exe not found or not and executable" && exit -2; fi
 rm -rf pdc_tmp pdc_data
-if [ -z ${AWS_TEST_BUCKET} ]
+if [ -z ${AWS_TEST_BUCKET} ]; then
     # For S3 tests, we need to make sure the bucket is cleared between runs
     # Notice that instead deleting the bucket itself can take up to 2 hours before re-creating
     aws s3 rm s3://${AWS_TEST_BUCKET} --recursive

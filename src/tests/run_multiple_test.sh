@@ -16,7 +16,7 @@ if [ $# -lt 1 ]; then echo "missing test argument" && exit -1 ; fi
 # copy the remaining test input arguments (if any)
 test_args="$*"
 rm -rf pdc_tmp pdc_data
-if [ -z ${AWS_TEST_BUCKET} ]
+if [ -z ${AWS_TEST_BUCKET} ]; then
     # For S3 tests, we need to make sure the bucket is cleared between runs
     # Notice that instead deleting the bucket itself can take up to 2 hours before re-creating
     aws s3 rm s3://${AWS_TEST_BUCKET} --recursive
