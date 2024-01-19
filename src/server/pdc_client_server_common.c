@@ -7395,13 +7395,50 @@ PDC_deployment_configure()
 {
     char path[ADDR_MAX];
 
-    sprintf(path, "%s/%s", getenv("PDC_CONFIGURATION"), pdc_deployment_yaml_name_g);
+    sprintf(path, "%s/%s", getenv("PDC_CONFIGURATION"), pdc_deployment_json_name_g);
 
-    pdc_deployment_yaml = fy_document_build_from_file(NULL, path);
-
-    if (!pdc_deployment_yaml) {
-        fprintf(stderr, "failed to read PDC deployment configuration");
+    FILE *json_file;
+    char *configuration;
+    long bytes;
+     
+    // Open the JSON configuration file for reading
+    json_file = fopen(path, "r");
+     
+    // Quit if the file does not exist
+    if (json_file == NULL) {
+        fprintf(stderr, "failed to open PDC deployment JSON configuration");
 
         exit(1);
     }
+     
+    // Get the number of bytes in the file
+    fseek(json_file, 0L, SEEK_END);
+    bytes = ftell(json_file);
+     
+    // Reset the file position indicator to the beginning of the file
+    fseek(json_file, 0L, SEEK_SET); 
+     
+    // Allocate sufficient memory for the buffer to hold the text
+    configuration = (char*) calloc(bytes, sizeof(char *));
+     
+    // Check for memory allocation error
+    if (configuration == NULL) {
+        exit(1);
+    }
+
+    // Copy all the text into the configuration
+    int ret = fread(configuration, sizeof(char), bytes, json_file);
+
+    if (ret < 0) {
+        fprintf(stderr, "failed to read PDC deployment JSON configuration");
+
+        exit(1);
+    }
+
+    // Closes the JSON configuration file
+    fclose(json_file);
+
+    json_configuration = cJSON_Parse(configuration);
+
+    free(configuration);
 }

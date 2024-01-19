@@ -79,9 +79,9 @@ bool ListObjects(char *bucketName) {
 }
 
 bool PutObject(char *bucketName, char *objectName, char *fileName) {
-    std::cout << "==AWS-S3[] PutObject..." << std::endl;
-
     if (aws_s3_config.use_crt) {
+        std::cout << "==AWS-S3Ctr[] PutObject [" << bucketName << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
         request.SetKey(objectName);
@@ -112,6 +112,8 @@ bool PutObject(char *bucketName, char *objectName, char *fileName) {
             return false;
         }
     } else {
+        std::cout << "==AWS-S3[] PutObject [" << bucketName << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
         request.SetKey(objectName);
@@ -141,9 +143,9 @@ bool PutObject(char *bucketName, char *objectName, char *fileName) {
 }
 
 bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t size, void *meta) {
-    std::cout << "==AWS-S3[] PutObject..." << std::endl;
-
     if (aws_s3_config.use_crt) {
+        // std::cout << "==AWS-S3Crt[] PutObject..." << std::endl;
+    
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
         request.SetKey(objectName);
@@ -160,11 +162,13 @@ bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t 
             return true;
         }
         else {
-            std::cout << "[AWS-S3Crt] PutObject error:\n" << outcome.GetError() << std::endl << std::endl;
+            std::cerr << "[AWS-S3Crt] PutObject error:\n" << outcome.GetError() << std::endl << std::endl;
 
             return false;
         }
     } else {
+        // std::cout << "==AWS-S3[] PutObject..." << std::endl;
+
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
         request.SetKey(objectName);
@@ -192,53 +196,6 @@ bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t 
 
 }
 
-uint64_t GetObjectBytes(char* objectKey, char* fromBucket, void *buffer) {
-    int64_t nbytes = 0;
-
-    //! Step 2: Head Object request
-    Aws::S3Crt::Model::HeadObjectRequest headObj;
-    headObj.SetBucket(fromBucket);
-    headObj.SetKey(objectKey);
-
-    //! Step 3: read size from object header metadata
-    auto object = aws_crt_client->HeadObject(headObj);
-    if (object.IsSuccess())
-    {
-        nbytes = object.GetResultWithOwnership().GetContentLength();
-    }
-    else
-    {
-        std::cout << "[AWS-S3] GetObjectBytes - Head Object error: "
-            << object .GetError().GetExceptionName() << " - "
-            << object .GetError().GetMessage() << std::endl;
-    }
-
-    if (nbytes == 0) {
-        return 0;
-    }
-
-    if (buffer == NULL) {
-        // printf("---> allocated new buffer with size = %lld\n", nbytes);
-        buffer = (void *) malloc(nbytes);
-    }
-
-    Aws::S3Crt::Model::GetObjectRequest request;
-    request.SetBucket(fromBucket);
-    request.SetKey(objectKey);
-    request.SetResponseStreamFactory(AwsWriteableStreamFactory(buffer, nbytes));
-
-    Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
-
-    if (outcome.IsSuccess()) {
-        return nbytes;
-    }
-    else {
-        std::cout << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl << std::endl;
-
-        return false;
-    }
-}
-
 uint64_t GetSize(char* objectKey, char* fromBucket) {
     int64_t nbytes = 0;
 
@@ -254,7 +211,7 @@ uint64_t GetSize(char* objectKey, char* fromBucket) {
         }
         else if (object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::RESOURCE_NOT_FOUND && object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::ACCESS_DENIED)
         {
-            std::cout << "[AWS-S3Crt] GetSize - Head Object error: "
+            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: "
                 << object .GetError().GetExceptionName() << " - "
                 << object .GetError().GetMessage() << std::endl;
         }
@@ -270,7 +227,7 @@ uint64_t GetSize(char* objectKey, char* fromBucket) {
         }
         else if (object.GetError().GetErrorType() != Aws::S3::S3Errors::RESOURCE_NOT_FOUND && object.GetError().GetErrorType() != Aws::S3::S3Errors::ACCESS_DENIED)
         {
-            std::cout << "[AWS-S3] GetObject - Head Object error: "
+            std::cerr << "[AWS-S3] GetObject - Head Object error: "
                 << object .GetError().GetExceptionName() << " - "
                 << object .GetError().GetMessage() << std::endl;
         }
@@ -296,7 +253,7 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
         }
         else
         {
-            std::cout << "GetObject - Head Object error: "
+            std::cerr << "GetObject - Head Object error: "
                 << object .GetError().GetExceptionName() << " - "
                 << object .GetError().GetMessage() << std::endl;
         }
@@ -312,7 +269,7 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
             return true;
         }
         else {
-            std::cout << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl
+            std::cerr << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl
                 << outcome .GetError().GetExceptionName() << " - "
                 << outcome .GetError().GetMessage() << std::endl << std::endl;
 
@@ -332,7 +289,7 @@ bool GetObject(char* objectKey, char* fromBucket, void *buffer) {
         }
         else
         {
-            std::cout << "[AWS-S3] GetObject - Head Object error: "
+            std::cerr << "[AWS-S3] GetObject - Head Object error: "
                 << object .GetError().GetExceptionName() << " - "
                 << object .GetError().GetMessage() << std::endl;
         }
@@ -372,7 +329,7 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
             return true;
         }
         else {
-            std::cout << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl << std::endl;
+            std::cerr << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl << std::endl;
 
             return false;
         }
@@ -412,7 +369,7 @@ bool ListBuckets() {
             return true;
         }
         else {
-            std::cout << "[AWS-S3] ListBuckets error:\n"<< outcome.GetError() << std::endl << std::endl;
+            std::cerr << "[AWS-S3] ListBuckets error:\n"<< outcome.GetError() << std::endl << std::endl;
 
             return false;
         }
@@ -539,11 +496,12 @@ void PDC_Server_aws_init(pdc_aws_config config) {
         ctr_config.partSize = aws_s3_config.part_size;
         ctr_config.maxConnections = aws_s3_config.max_connections;
         if (strlen(aws_s3_config.endpoint) > 0) {
-            ctr_config.endpointOverride = aws_s3_config.endpoint; // "s3express-usw2-az1.us-west-2.amazonaws.com"
+            //ctr_config.endpointOverride = aws_s3_config.endpoint; // "s3express-usw2-az1.us-west-2.amazonaws.com"
         }
+        ctr_config.enableEndpointDiscovery = true;
 
-        std::cout << "==AWS-S3[] region: " << ctr_config.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
-        std::cout << "==AWS-S3[] Using S3Crt client" << std::endl;
+        std::cout << "==AWS-S3Ctr[] region: " << ctr_config.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
+        std::cout << "==AWS-S3Ctr[] Using S3Crt client" << std::endl;
 
         aws_crt_client = std::make_shared<Aws::S3Crt::S3CrtClient>(ctr_config);
     } else {
@@ -553,7 +511,7 @@ void PDC_Server_aws_init(pdc_aws_config config) {
         } else {
             clientConfig.region = aws_s3_config.region;
         }
-        Aws::S3::S3Client s3_client(credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(""), clientConfig);
+        //Aws::S3::S3Client s3_client(credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(""), clientConfig);
         
         std::cout << "==AWS-S3[] region: " << clientConfig.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
         std::cout << "==AWS-S3[] Using S3 client" << std::endl;
@@ -567,10 +525,12 @@ void PDC_Server_aws_init(pdc_aws_config config) {
 void PDC_Server_aws_finalize() {
     std::cout << "[AWS-S3] Finalizing..." << std::endl;
 
-    // client needs to have its destructor called before shutdown occurs
-    // in fact adding aws_crt_client.reset(); before calling shutdown will fix 
-    // it is recommend using RAII instead of directly invoking reset
-    aws_crt_client.reset();
+    if (aws_s3_config.use_crt) {
+        // client needs to have its destructor called before shutdown occurs
+        // in fact adding aws_crt_client.reset(); before calling shutdown will fix 
+        // it is recommend using RAII instead of directly invoking reset
+        aws_crt_client.reset();
+    }
 
     Aws::ShutdownAPI(options);
 

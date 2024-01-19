@@ -311,19 +311,6 @@ if(PDC_USE_SHARED_SERVER)
 endif()
 
 #-----------------------------------------------------------------------------
-# Configuration option
-#-----------------------------------------------------------------------------
-find_package(FYAML REQUIRED)
-
-if(FYAML_FOUND)
-  include_directories(${FYAML_INCLUDE_DIRS})
-  set(PDC_EXT_LIB_DEPENDENCIES
-    ${PDC_EXT_LIB_DEPENDENCIES}
-    ${FYAML_LIBRARIES}
-  )
-endif()
-
-#-----------------------------------------------------------------------------
 # DRC option
 #-----------------------------------------------------------------------------
 option(PDC_USE_CRAY_DRC

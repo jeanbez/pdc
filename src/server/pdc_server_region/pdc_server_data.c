@@ -4734,7 +4734,7 @@ PDC_Server_S3_write(char* aws_s3_location, void *buf, uint64_t write_size)
     //sprintf(name, "%u/server%d", obj_id, pdc_server_rank_g);
 
     // printf("==PDC_SERVER[%d] PDC_Server_S3_write ===> write_size = %lld\n", pdc_server_rank_g, write_size);
-
+    printf("~~~~~~~~~~~~~~> PDC_Server_S3_write\n");
     //ret = PutObjectBuffer("pdc-test-11022023", name, buf, write_size, NULL);
     //ret = PutObjectBuffer("pdc-test-11022023", name, buf, write_size, NULL);
     ret = PutObjectBuffer(PDC_AWS_S3_DEFAULT_BUCKET, aws_s3_location, buf, write_size, NULL);
@@ -4770,40 +4770,43 @@ PDC_Server_S3_write_region(char *aws_s3_location, void *buf, uint64_t write_size
 
     void *original_buf = NULL;
     //printf("==PDC_SERVER[%d] ---> PDC_Server_S3_write_region ---> region_offset = %lld\n", pdc_server_rank_g, region_offset);
-    //current_size = GetObjectBytes(name, "pdc-test-11022023", original_buf);
 
-    current_size = GetSize(aws_s3_location, PDC_AWS_S3_DEFAULT_BUCKET);
+    if (region_offset > 0) {
+        current_size = GetSize(aws_s3_location, PDC_AWS_S3_DEFAULT_BUCKET);
 
-    // TODO use upload_and_copy to optimize
-    // merge by memcpy'ing
-    // printf("==PDC_SERVER[%d] ===> current_size = %lld\n", pdc_server_rank_g, current_size);
-    // printf("==PDC_SERVER[%d] ===> region_offset = %lld\n", pdc_server_rank_g, region_offset);
-    // printf("==PDC_SERVER[%d] ===> write_size = %lld\n", pdc_server_rank_g, write_size);
-    //NOT printf("===> original_buf[region_offset] = %ld buf[0] = %ld write_size = %ld\n", &original_buf[region_offset], &buf[0], write_size);
+        // TODO use upload_and_copy to optimize
+        // merge by memcpy'ing
+        // printf("==PDC_SERVER[%d] ===> current_size = %lld\n", pdc_server_rank_g, current_size);
+        // printf("==PDC_SERVER[%d] ===> region_offset = %lld\n", pdc_server_rank_g, region_offset);
+        // printf("==PDC_SERVER[%d] ===> write_size = %lld\n", pdc_server_rank_g, write_size);
+        // NOT printf("===> original_buf[region_offset] = %ld buf[0] = %ld write_size = %ld\n", &original_buf[region_offset], &buf[0], write_size);
 
-    //printf("---> PDC_Server_S3_write_region ---> from %lld to %lld...\n", current_size, region_offset + write_size);
+        //  printf("---> PDC_Server_S3_write_region ---> from %lld to %lld...\n", current_size, region_offset + write_size);
+    } else {
+        current_size = 0;
+    }
 
     ssize_t new_size = fmax(current_size, region_offset + write_size);
 
     if (new_size > current_size) {
-        //printf("==PDC_SERVER[%d] ---> PDC_Server_S3_write_region ---> realloc'ing from %lld to %lld...\n", pdc_server_rank_g, current_size, region_offset + write_size);
+        printf("==PDC_SERVER[%d] ---> PDC_Server_S3_write_region ---> realloc'ing from %lld to %lld...\n", pdc_server_rank_g, current_size, region_offset + write_size);
     
         if (current_size != 0) {
             // original_buf = malloc(region_offset + write_size);
         //} else {
-            //printf("==PDC_SERVER[%d]    increasing original_buf from %lld to %lld bytes\n", pdc_server_rank_g, current_size, new_size);
+            printf("==PDC_SERVER[%d]    increasing original_buf from %lld to %lld bytes\n", pdc_server_rank_g, current_size, new_size);
             //original_buf = realloc(original_buf, current_size + region_offset + write_size);  
             original_buf = realloc(original_buf, new_size);  
         }
     } else {
-        //printf("==PDC_SERVER[%d]   allocating %lld for the original buffer...\n", pdc_server_rank_g, current_size);
+        printf("==PDC_SERVER[%d]   allocating %lld for the original buffer...\n", pdc_server_rank_g, current_size);
         original_buf = malloc(current_size);
     }
 
     if (current_size) {
-        //printf("  getting original buffer...\n");
-        ret = GetObject(aws_s3_location, PDC_AWS_S3_DEFAULT_BUCKET, original_buf);
-        //printf("  got original buffer\n");
+        printf("  getting original buffer...\n");
+        ret = GetObjectRange(aws_s3_location, PDC_AWS_S3_DEFAULT_BUCKET, original_buf, 0, current_size);
+        printf("  got original buffer\n");
         /*int *test;
         test = (int *) original_buf;
         for (int i = 0; i < current_size / sizeof(int); i++) {
@@ -4816,7 +4819,7 @@ PDC_Server_S3_write_region(char *aws_s3_location, void *buf, uint64_t write_size
             printf("---> buffer[%d] = [%d]\n", i, test[i]);
         }*/
 
-        // printf("---> PDC_Server_S3_write_region ---> copied buffer\n");
+        printf("---> PDC_Server_S3_write_region ---> copied buffer\n");
         //ret = PutObjectBuffer("pdc-test-11022023", name, buf, write_size, NULL);
         ret = PutObjectBuffer(PDC_AWS_S3_DEFAULT_BUCKET, aws_s3_location, original_buf, new_size, NULL);
     } else {
@@ -4830,9 +4833,9 @@ PDC_Server_S3_write_region(char *aws_s3_location, void *buf, uint64_t write_size
         printf("==PDC_SERVER[%d]: write %s failed\n", pdc_server_rank_g, aws_s3_location);
         ret_value = FAIL;
         goto done;
-    } /*else {
+    } else {
         printf("==PDC_SERVER[%d]: write %s succeeded\n", pdc_server_rank_g, aws_s3_location);
-    }*/
+    }
 
 done:
     FUNC_LEAVE(ret_value);
@@ -4852,6 +4855,8 @@ PDC_Server_S3_read(char* aws_s3_location, void *buf, uint64_t size, uint64_t off
     // ssize_t current_size = GetSize(aws_s3_location, "pdc-test-11022023");
     // printf("GetObjectRange (trying) ---> offset = %lld size = %lld of object size = %lld\n", offset, size, current_size);
     // printf("GetObjectRange ---> offset = %lld size = %lld\n", offset, size);
+
+    // printf("~~~~~~~~~~> PDC_Server_S3_read\n");
 
     ret = GetObjectRange(aws_s3_location, PDC_AWS_S3_DEFAULT_BUCKET, buf, offset, size);
 
@@ -4877,6 +4882,7 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
     region_list_t *       overlap_region = NULL;
     int                   is_contained   = 0;
     uint64_t              i, j, pos;
+    uint64_t              region_size, region_offset;
     uint64_t *            overlap_offset, *overlap_size;
     char *                tmp_buf;
 #if 0
@@ -4946,21 +4952,27 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     ret_value = -1;
                     goto done;
                 }
-                //printf("---> PDC_Server_data_write_out ---> lseek ---> %d\n", overlap_region->offset + pos);
-                lseek(region->fd, overlap_region->offset + pos, SEEK_SET);
 #ifdef PDC_TIMING
                 start_posix = MPI_Wtime();
 #endif
-
+                region_size = overlap_size[0] * unit;
+                region_offset = overlap_region->offset + pos;
 #ifdef PDC_HAS_S3
-                ret_value = PDC_Server_S3_write_region(region->storage_location, buf + (overlap_offset[0] - region_info->offset[0]) * unit,
-                                            overlap_size[0] * unit, overlap_region->offset + pos);
+                ret_value = PDC_Server_S3_write_region(
+                    region->storage_location,
+                    buf + (overlap_offset[0] - region_info->offset[0]) * unit,
+                    region_size,
+                    region_offset
+                );
 #else
                 // printf("POSIX write from file offset %lu, region start = %lu, region size = %lu\n",
                 // overlap_region->offset, overlap_region->start[0], overlap_region->count[0]);
-                ret_value = PDC_Server_posix_write(region->fd,
-                                                   buf + (overlap_offset[0] - region_info->offset[0]) * unit,
-                                                   overlap_size[0] * unit);
+                lseek(region->fd, region_offset, SEEK_SET);
+                ret_value = PDC_Server_posix_write(
+                    region->fd,
+                    buf + (overlap_offset[0] - region_info->offset[0]) * unit,
+                    region_size
+                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5003,13 +5015,19 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                     start_posix = MPI_Wtime();
 #endif
+                    region_size = overlap_region->data_size;
+                    region_offset = overlap_region->offset;
 #ifdef PDC_HAS_S3
-                    //ret_value = PDC_Server_S3_write(region->storage_location, tmp_buf, overlap_region->data_size);
-                    ret_value = PDC_Server_S3_write_region(region->storage_location, tmp_buf, overlap_region->data_size, overlap_region->offset);
+                    ret_value = PDC_Server_S3_write_region(
+                        region->storage_location,
+                        tmp_buf,
+                        region_size,
+                        region_offset
+                    );
 #else
                     // Read the whole region back
-                    lseek(region->fd, overlap_region->offset, SEEK_SET);
-                    ret_value = PDC_Server_posix_write(region->fd, tmp_buf, overlap_region->data_size);
+                    lseek(region->fd, region_offset, SEEK_SET);
+                    ret_value = PDC_Server_posix_write(region->fd, tmp_buf, region_size);
 #endif
 
 #ifdef PDC_TIMING
@@ -5026,10 +5044,9 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     if (region_info->ndim == 2) {
                         if (overlap_offset[1] == overlap_region->start[1] &&
                             overlap_size[1] == overlap_region->count[1]) {
-                            lseek(region->fd,
-                                  overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] * unit,
-                                  SEEK_SET);
+                            region_offset = overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
+                                                               overlap_region->count[1] * unit;
+                            lseek(region->fd, region_offset, SEEK_SET);
                             if (overlap_offset[1] == region_info->offset[1] &&
                                 overlap_size[1] == region_info->size[1]) {
                                 // Overlap region is exactly the same as input region, so no need to copy
@@ -5037,26 +5054,22 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-
+                                region_size = overlap_size[0] * overlap_size[1] * unit;
 #ifdef PDC_HAS_S3
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * unit,
-                                    overlap_size[0] * overlap_size[1] * unit,
-                                    overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] * unit);
-                                //ret_value = PDC_Server_S3_write(
-                                //    region->storage_location,
-                                //    buf + (overlap_offset[0] - region_info->offset[0]) *
-                                //              region_info->size[1] * unit,
-                                //    overlap_size[0] * overlap_size[1] * unit);
+                                    region_size,
+                                    region_offset
+                                );
 #else
                                 ret_value = PDC_Server_posix_write(
                                     region->fd,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * unit,
-                                    overlap_size[0] * overlap_size[1] * unit);
+                                    region_size
+                                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5071,17 +5084,20 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-
+                                region_size = overlap_size[0] * overlap_size[1] * unit;
 #ifdef PDC_HAS_S3
-                                ret_value = PDC_Server_S3_write_region(region->storage_location, tmp_buf,
-                                                                   overlap_size[0] * overlap_size[1] * unit,
-                                                                   overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] * unit);
-                                //ret_value = PDC_Server_S3_write(region->storage_location, tmp_buf,
-                                //                                   overlap_size[0] * overlap_size[1] * unit);
+                                ret_value = PDC_Server_S3_write_region(
+                                    region->storage_location,
+                                    tmp_buf,
+                                    region_size,
+                                    region_offset
+                                );
 #else
-                                ret_value = PDC_Server_posix_write(region->fd, tmp_buf,
-                                                                   overlap_size[0] * overlap_size[1] * unit);
+                                ret_value = PDC_Server_posix_write(
+                                    region->fd,
+                                    tmp_buf,
+                                    region_size
+                                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5098,46 +5114,32 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                         }
                         else {
                             for (i = 0; i < overlap_size[0]; ++i) {
-                                lseek(region->fd,
-                                      overlap_region->offset +
+                                region_offset = overlap_region->offset +
                                           ((overlap_offset[0] - overlap_region->start[0] + i) *
                                                overlap_region->count[1] +
-                                           overlap_offset[1] - overlap_region->start[1]) *
-                                              unit,
-                                      SEEK_SET);
+                                           overlap_offset[1] - overlap_region->start[1]) * unit;
+                                lseek(region->fd, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-
+                                region_size = overlap_size[1] * unit;
 #ifdef PDC_HAS_S3
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + ((overlap_offset[0] - region_info->offset[0] + i) *
                                                region_info->size[1] +
-                                           overlap_offset[1] - region_info->offset[1]) *
-                                              unit,
-                                    overlap_size[1] * unit,
-                                    overlap_region->offset +
-                                          ((overlap_offset[0] - overlap_region->start[0] + i) *
-                                               overlap_region->count[1] +
-                                           overlap_offset[1] - overlap_region->start[1]) *
-                                              unit);
-
-                                //ret_value = PDC_Server_S3_write(
-                                //    region->storage_location,
-                                //    buf + ((overlap_offset[0] - region_info->offset[0] + i) *
-                                //               region_info->size[1] +
-                                //           overlap_offset[1] - region_info->offset[1]) *
-                                //              unit,
-                                //    overlap_size[1] * unit);
+                                           overlap_offset[1] - region_info->offset[1]) * unit,
+                                    region_size,
+                                    region_offset
+                                );
 #else
                                 ret_value = PDC_Server_posix_write(
                                     region->fd,
                                     buf + ((overlap_offset[0] - region_info->offset[0] + i) *
                                                region_info->size[1] +
-                                           overlap_offset[1] - region_info->offset[1]) *
-                                              unit,
-                                    overlap_size[1] * unit);
+                                           overlap_offset[1] - region_info->offset[1]) * unit,
+                                    region_size
+                                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5157,11 +5159,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                             overlap_size[2] == overlap_region->count[2] &&
                             overlap_offset[1] == overlap_region->start[1] &&
                             overlap_size[1] == overlap_region->count[1]) {
-                            lseek(region->fd,
-                                  overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
+                            region_offset = overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
                                                                overlap_region->count[1] *
-                                                               overlap_region->count[2] * unit,
-                                  SEEK_SET);
+                                                               overlap_region->count[2] * unit;
+                            lseek(region->fd, region_offset, SEEK_SET);
                             if (overlap_offset[2] == region_info->offset[2] &&
                                 overlap_size[2] == region_info->size[2] &&
                                 overlap_offset[1] == region_info->offset[1] &&
@@ -5169,29 +5170,23 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-
-
+                                region_size = overlap_size[0] * overlap_size[1] * overlap_size[2] * unit;
 #ifdef PDC_HAS_S3
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * region_info->size[2] * unit,
-                                    overlap_size[0] * overlap_size[1] * overlap_size[2] * unit,
-                                    overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] *
-                                                               overlap_region->count[2] * unit);
+                                    region_size,
+                                    region_offset
+                                );
 
-                                //ret_value = PDC_Server_S3_write(
-                                //    region->storage_location,
-                                //    buf + (overlap_offset[0] - region_info->offset[0]) *
-                                //              region_info->size[1] * region_info->size[2] * unit,
-                                //    overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
 #else
                                 ret_value = PDC_Server_posix_write(
                                     region->fd,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * region_info->size[2] * unit,
-                                    overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
+                                    region_size
+                                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5207,21 +5202,20 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-
+                                region_size = overlap_size[0] * overlap_size[1] * overlap_size[2] * unit;
 #ifdef PDC_HAS_S3
-                                ret_value = PDC_Server_S3_write_region(region->storage_location, tmp_buf,
-                                                                   overlap_size[0] * overlap_size[1] *
-                                                                       overlap_size[2] * unit,
-                                                                       overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] *
-                                                               overlap_region->count[2] * unit);
-                                // ret_value = PDC_Server_S3_write(region->storage_location, tmp_buf,
-                                //                                   overlap_size[0] * overlap_size[1] *
-                                //                                       overlap_size[2] * unit);
+                                ret_value = PDC_Server_S3_write_region(
+                                    region->storage_location,
+                                    tmp_buf,
+                                    region_size,
+                                    region_offset
+                                );
 #else
-                                ret_value = PDC_Server_posix_write(region->fd, tmp_buf,
-                                                                   overlap_size[0] * overlap_size[1] *
-                                                                       overlap_size[2] * unit);
+                                ret_value = PDC_Server_posix_write(
+                                    region->fd,
+                                    tmp_buf,
+                                    region_size
+                                );
 #endif
 
 #ifdef PDC_TIMING
@@ -5233,19 +5227,17 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                         else {
                             for (i = 0; i < overlap_size[0]; ++i) {
                                 for (j = 0; j < overlap_size[1]; ++j) {
-                                    lseek(region->fd,
-                                          overlap_region->offset +
+                                    region_offset = overlap_region->offset +
                                               (((overlap_offset[0] - overlap_region->start[0] + i) *
                                                     overlap_region->count[1] +
                                                 (overlap_offset[1] - overlap_region->start[1] + j)) *
                                                    overlap_region->count[2] +
-                                               overlap_offset[2] - overlap_region->start[2]) *
-                                                  unit,
-                                          SEEK_SET);
+                                               overlap_offset[2] - overlap_region->start[2]) * unit;
+                                    lseek(region->fd, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                     start_posix = MPI_Wtime();
 #endif
-
+                                    region_size = overlap_size[2] * unit;
 #ifdef PDC_HAS_S3
                                     ret_value = PDC_Server_S3_write_region(
                                         region->storage_location,
@@ -5253,26 +5245,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                                                     region_info->size[1] +
                                                 (overlap_offset[1] - region_info->offset[1] + j)) *
                                                    region_info->size[2] +
-                                               overlap_offset[2] - region_info->offset[2]) *
-                                                  unit,
-                                        overlap_size[2] * unit, 
-                                        overlap_region->offset +
-                                              (((overlap_offset[0] - overlap_region->start[0] + i) *
-                                                    overlap_region->count[1] +
-                                                (overlap_offset[1] - overlap_region->start[1] + j)) *
-                                                   overlap_region->count[2] +
-                                               overlap_offset[2] - overlap_region->start[2]) *
-                                                  unit);
-
-                                    //ret_value = PDC_Server_S3_write(
-                                    //    region->storage_location,
-                                    //    buf + (((overlap_offset[0] - region_info->offset[0] + i) *
-                                    //                region_info->size[1] +
-                                    //            (overlap_offset[1] - region_info->offset[1] + j)) *
-                                    //               region_info->size[2] +
-                                    //           overlap_offset[2] - region_info->offset[2]) *
-                                    //              unit,
-                                    //    overlap_size[2] * unit);
+                                               overlap_offset[2] - region_info->offset[2]) * unit,
+                                        region_size,
+                                        region_offset
+                                    );
 #else
                                     ret_value = PDC_Server_posix_write(
                                         region->fd,
@@ -5280,9 +5256,9 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                                                     region_info->size[1] +
                                                 (overlap_offset[1] - region_info->offset[1] + j)) *
                                                    region_info->size[2] +
-                                               overlap_offset[2] - region_info->offset[2]) *
-                                                  unit,
-                                        overlap_size[2] * unit);
+                                               overlap_offset[2] - region_info->offset[2]) * unit,
+                                        region_size
+                                    );
 #endif
 
 #ifdef PDC_TIMING
@@ -5299,21 +5275,26 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
         }
     }
     if (is_contained == 0) {
-        request_region->offset = lseek(region->fd, 0, SEEK_END);
 // printf("posix write for position %d with write size %u\n", 0, (unsigned)write_size);
 #ifdef PDC_TIMING
         start_posix = MPI_Wtime();
 #endif
-        //printf("IN HERE....\n");
 #ifdef PDC_HAS_S3
-        //char name[1024];
-        //sprintf(name, "%u/server%d", region->obj_id, pdc_server_rank_g);
-
         request_region->offset = GetSize(region->storage_location, PDC_AWS_S3_DEFAULT_BUCKET);
         //printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
-        ret_value = PDC_Server_S3_write_region(region->storage_location, buf, write_size, request_region->offset);
+        ret_value = PDC_Server_S3_write_region(
+            region->storage_location,
+            buf,
+            write_size,
+            request_region->offset
+        );
 #else
-        ret_value = PDC_Server_posix_write(region->fd, buf, write_size);
+        request_region->offset = lseek(region->fd, 0, SEEK_END);
+        ret_value = PDC_Server_posix_write(
+            region->fd,
+            buf,
+            write_size
+        );
 #endif
 
 #ifdef PDC_TIMING
@@ -5582,6 +5563,8 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
 
 #ifdef PDC_HAS_S3
+                                //printf("   [6] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit = %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
+                                //printf("   [6] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
                                 if (PDC_Server_S3_read(region->storage_location, 
                                           buf + (overlap_offset[0] - region_info->offset[0]) *
                                                     region_info->size[1] * region_info->size[2] * unit,
@@ -5610,6 +5593,8 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
 
 #ifdef PDC_HAS_S3
+                                //printf("   [7] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit = %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
+                                //printf("   [7] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
                                 if (PDC_Server_S3_read(region->storage_location, tmp_buf,
                                           overlap_size[0] * overlap_size[1] * overlap_size[2] * unit,
                                           overlap_region->offset + pos)) {
@@ -5645,6 +5630,8 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
 
 #ifdef PDC_HAS_S3
+                                    //printf("   [8] overlap_size[2] * unit = %lld\n", overlap_size[2] * unit);
+                                    //printf("   [8] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
                                     if (PDC_Server_S3_read(region->storage_location, 
                                               buf + (((overlap_offset[0] - region_info->offset[0] + i) *
                                                           region_info->size[1] +

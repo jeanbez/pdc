@@ -791,8 +791,11 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     char                self_addr_string[ADDR_MAX];
     char                na_info_string[NA_STRING_INFO_LEN];
     char                hostname[HOSTNAME_LEN];
-    char                host_addr[ADDR_MAX];
+    char                *host_addr;
     struct hg_init_info init_info = {0};
+
+    cJSON *json_communication = NULL;
+    cJSON *json_communication_config = NULL;
 
     /* Set the default mercury transport
      * but enable overriding that to any of:
@@ -800,7 +803,7 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
      *   "ofi+tcp"
      *   "cci+tcp"
      */
-    char hg_transport[255] = "ofi+tcp";
+    char *hg_transport = "ofi+tcp";
 #ifdef PDC_HAS_CRAY_DRC
     uint32_t          credential = 0, cookie;
     drc_info_handle_t credential_info;
@@ -809,18 +812,25 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     int               rc;
 #endif
 
+    bool use_host = false;
+
     PDC_deployment_configure();
 
-    int use_host = fy_document_scanf(pdc_deployment_yaml,
-        "/communication/host %s",
-        host_addr
-    );
+    json_communication = cJSON_GetObjectItemCaseSensitive(json_configuration, "communication");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/communication/transport %s",
-        hg_transport
-    );
+    json_communication_config = cJSON_GetObjectItemCaseSensitive(json_communication, "host");
 
+    if (cJSON_IsString(json_communication_config) && (json_communication_config->valuestring != NULL)) {
+        use_host = true;
+
+        host_addr = json_communication_config->valuestring;
+    }
+
+    json_communication_config = cJSON_GetObjectItemCaseSensitive(json_communication, "transport");
+
+    if (cJSON_IsString(json_communication_config) && (json_communication_config->valuestring != NULL)) {
+        hg_transport = json_communication_config->valuestring;
+    }
 
     FUNC_ENTER(NULL);
 
@@ -1029,54 +1039,73 @@ drc_access_again:
     // Initialize DART
     PDC_Server_dart_init();
 
-
 #ifdef PDC_HAS_S3
+    cJSON *json_backend = NULL;
+    cJSON *json_backend_s3 = NULL;
+    cJSON *json_backend_s3_config = NULL;
+
     pdc_aws_config aws_s3_config;
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/region %s",
-        aws_s3_config.region
-    );
+    // Parse the configuration
+    json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
+    
+    json_backend_s3 = cJSON_GetObjectItemCaseSensitive(json_backend, "s3");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/use_crt %d",
-        &aws_s3_config.use_crt
-    );
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "key");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/key %s",
-        aws_s3_config.key
-    );
+    if (cJSON_IsString(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        strcpy(aws_s3_config.key, json_backend_s3_config->valuestring);
+    }
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/secret %s",
-        aws_s3_config.secret
-    );
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "secret");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/endpoint %s",
-        aws_s3_config.endpoint
-    );
+    if (cJSON_IsString(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        strcpy(aws_s3_config.secret, json_backend_s3_config->valuestring);
+    }
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/bucket %s",
-        aws_s3_config.bucket
-    );
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "bucket");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/max_connections %ld",
-        &aws_s3_config.max_connections
-    );
+    if (cJSON_IsString(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        strcpy(aws_s3_config.bucket, json_backend_s3_config->valuestring);
+    }
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/throughput_target %lf",
-        &aws_s3_config.throughput_target
-    );
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "region");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/backend/s3/part_size %d",
-        &aws_s3_config.part_size
-    );
+    if (cJSON_IsString(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        strcpy(aws_s3_config.region, json_backend_s3_config->valuestring);
+    }
+
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "crt");
+
+    if (cJSON_IsTrue(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        aws_s3_config.use_crt = json_backend_s3_config->valueint;
+    }
+
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "max_connections");
+
+    if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
+        aws_s3_config.max_connections = json_backend_s3_config->valueint;
+    }
+
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "part_size");
+
+    if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
+        aws_s3_config.part_size = json_backend_s3_config->valueint;
+    }
+
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "throughput_target");
+
+    if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
+        aws_s3_config.throughput_target = json_backend_s3_config->valueint;
+    }
+
+    printf("AWS :: [configuration]\n");
+    printf("    :: [bucket = %s]\n", aws_s3_config.bucket);
+    printf("    :: [region = %s]\n", aws_s3_config.region);
+    printf("    :: [crt = %d]\n", aws_s3_config.use_crt);
+    printf("    :: [max_connections = %d]\n", aws_s3_config.max_connections);
+    printf("    :: [part_size = %d]\n", aws_s3_config.part_size);
+    printf("    :: [throughput_target = %d]\n", aws_s3_config.throughput_target);
 
     PDC_Server_aws_init(aws_s3_config);
 #endif
@@ -1144,6 +1173,8 @@ PDC_Server_finalize()
 #ifdef PDC_HAS_S3
     PDC_Server_aws_finalize();
 #endif
+
+    cJSON_Delete(json_configuration);
 
     // Debug: check duplicates
     if (is_debug_g == 1) {
@@ -1480,11 +1511,12 @@ PDC_Server_checkpoint()
     fclose(file);
 
 #ifdef PDC_HAS_S3
-    // Upload a copy to AWS
-    char aws_checkpoint[ADDR_MAX];
-    snprintf(aws_checkpoint, ADDR_MAX, "pdc-metadata-%d.checkpoint", pdc_server_rank_g);
+    char object_checkpoint_file[ADDR_MAX + sizeof(int) + 1];
 
-    PutObject(PDC_AWS_S3_DEFAULT_BUCKET, aws_checkpoint, checkpoint_file);
+    snprintf(object_checkpoint_file, ADDR_MAX, "S3-ROOT/%d/metadata_checkpoint.%d", pdc_server_rank_g, pdc_server_rank_g);
+
+    // Upload a copy to AWS
+    PutObject(PDC_AWS_S3_DEFAULT_BUCKET, object_checkpoint_file, checkpoint_file);
 #endif
 
     if (use_tmpfs) {

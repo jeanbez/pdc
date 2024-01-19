@@ -39,7 +39,8 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <libfyaml.h>
+
+#include "cJSON.h"
 
 #ifdef ENABLE_MULTITHREAD
 hg_thread_mutex_t pdc_client_info_mutex_g;
@@ -48,9 +49,7 @@ hg_thread_mutex_t meta_buf_map_mutex_g;
 hg_thread_mutex_t meta_obj_map_mutex_g;
 #endif
 
-struct fy_document *pdc_deployment_yaml;
-
-#define pdc_deployment_yaml_name_g "pdc.yaml"
+#define pdc_deployment_json_name_g "pdc.json"
 
 #define PAGE_SIZE                    4096
 #define ADDR_MAX                     1024
@@ -86,6 +85,8 @@ struct fy_document *pdc_deployment_yaml;
 
 #define ADD_OBJ 1
 #define DEL_OBJ 2
+
+cJSON *json_configuration;
 
 /*******************/
 /* Local Variables */

@@ -21,7 +21,6 @@ typedef struct {
 } pdc_aws_config;
 
 void PDC_Server_aws_init(pdc_aws_config config);
-//void PDC_Server_aws_init(bool ctr);
 void PDC_Server_aws_finalize();
 
 bool ListBuckets();

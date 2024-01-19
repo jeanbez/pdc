@@ -1181,8 +1181,9 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     perr_t ret_value = SUCCEED;
     char   na_info_string[NA_STRING_INFO_LEN];
     char   hostname[HOSTNAME_LEN];
-    char   host_addr[ADDR_MAX];
+    char   *host_addr;
     int    local_server_id;
+    int    use_host;
     /* Set the default mercury transport
      * but enable overriding that to any of:
      *   "ofi+gni"
@@ -1190,7 +1191,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
      *   "cci+tcp"
      */
     struct hg_init_info init_info            = {0};
-    char hg_transport[255] = "ofi+tcp";
+    char *hg_transport = "ofi+tcp";
 #ifdef PDC_HAS_CRAY_DRC
     uint32_t          credential, cookie;
     drc_info_handle_t credential_info;
@@ -1199,17 +1200,26 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     int               rc;
 #endif
 
+    cJSON *json_communication = NULL;
+    cJSON *json_communication_config = NULL;
+
     FUNC_ENTER(NULL);
 
-    int use_host = fy_document_scanf(pdc_deployment_yaml,
-        "/communication/host %s",
-        host_addr
-    );
+    json_communication = cJSON_GetObjectItemCaseSensitive(json_configuration, "communication");
 
-    fy_document_scanf(pdc_deployment_yaml,
-        "/communication/transport %s",
-        hg_transport
-    );
+    json_communication_config = cJSON_GetObjectItemCaseSensitive(json_communication, "host");
+
+    if (cJSON_IsString(json_communication_config) && (json_communication_config->valuestring != NULL)) {
+        use_host = true;
+
+        host_addr = json_communication_config->valuestring;
+    }
+
+    json_communication_config = cJSON_GetObjectItemCaseSensitive(json_communication, "transport");
+
+    if (cJSON_IsString(json_communication_config) && (json_communication_config->valuestring != NULL)) {
+        hg_transport = json_communication_config->valuestring;
+    }
 
     if (use_host) {
         printf("[PDC|deployment] transport = [%s]\n", hg_transport);
