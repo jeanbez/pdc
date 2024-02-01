@@ -144,7 +144,7 @@ bool PutObject(char *bucketName, char *objectName, char *fileName) {
 
 bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t size, void *meta) {
     if (aws_s3_config.use_crt) {
-        // std::cout << "==AWS-S3Crt[] PutObject..." << std::endl;
+        std::cout << "==AWS-S3Crt[] PutObject [" << objectName << "]"  << std::endl;
     
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
@@ -167,7 +167,7 @@ bool PutObjectBuffer(char *bucketName, char *objectName, void *buffer, uint64_t 
             return false;
         }
     } else {
-        // std::cout << "==AWS-S3[] PutObject..." << std::endl;
+        std::cout << "==AWS-S3[] PutObject [" << objectName << "]" << std::endl;
 
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(bucketName);
@@ -318,9 +318,12 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
 
     if (aws_s3_config.use_crt) {
         Aws::S3Crt::Model::GetObjectRequest request;
+
+        // std::cerr << "[AWS-S3Crt] GetObjectRange bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size) << std::endl;
+
         request.SetBucket(fromBucket);
         request.SetKey(objectKey);
-        request.SetRange("bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size));
+        request.SetRange("bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size)); // bytes range is inclusive (https://datatracker.ietf.org/doc/rfc7233/)
         request.SetResponseStreamFactory(AwsWriteableStreamFactory(buffer, size));
 
         Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
@@ -329,15 +332,18 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
             return true;
         }
         else {
-            std::cerr << "[AWS-S3] GetObject error:\n" << outcome.GetError() << std::endl << std::endl;
+            std::cerr << "[AWS-S3][" << aws_s3_config.pdc_server_id << "] GetObjectRange error:\n" << outcome.GetError() << std::endl << std::endl;
 
             return false;
         }
     } else {
         Aws::S3::Model::GetObjectRequest request;
+
+        //std::cerr << "[AWS-S3] GetObjectRange bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size) << std::endl;
+
         request.SetBucket(fromBucket);
         request.SetKey(objectKey);
-        request.SetRange("bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size));
+        request.SetRange("bytes=" + std::to_string(offset) + "-" + std::to_string(offset + size - 1)); // bytes range is inclusive (https://datatracker.ietf.org/doc/rfc7233/)
         request.SetResponseStreamFactory(AwsWriteableStreamFactory(buffer, size));
         // The AWS SDK creates a auto-growing StringStream by default, entailing multiple memory copies when transferring large data blocks (because of resizes).  Instead, write directly into the target data area.
 
@@ -345,7 +351,7 @@ bool GetObjectRange(char* objectKey, char* fromBucket, void *buffer, uint64_t of
 
         if (!outcome.IsSuccess()) {
             const Aws::S3::S3Error &err = outcome.GetError();
-            std::cerr << "[AWS-S3] Error: GetObject: " <<
+            std::cerr << "[AWS-S3][" << aws_s3_config.pdc_server_id << "] Error: GetObjectRange: " <<
                       err.GetExceptionName() << ": " << err.GetMessage() << std::endl;
         }
 
@@ -470,14 +476,14 @@ bool DeleteObject(char* objectKey, char* fromBucket) {
 }
 
 void PDC_Server_aws_init(pdc_aws_config config) {
-    std::cout << "==AWS-S3[] Initializing..." << std::endl;
+    // Stores the AWS S3 configuration
+    aws_s3_config = config;
+
+    std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Initializing..." << std::endl;
 
     options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Error;
     options.loggingOptions.crt_logger_create_fn =
         [](){ return Aws::MakeShared<Aws::Utils::Logging::DefaultCRTLogSystem>("CRTLogSystem", Aws::Utils::Logging::LogLevel::Error); };
-
-    // Stores the AWS S3 configuration
-    aws_s3_config = config;
 
     Aws::InitAPI(options);
 
@@ -500,8 +506,8 @@ void PDC_Server_aws_init(pdc_aws_config config) {
         }
         ctr_config.enableEndpointDiscovery = true;
 
-        std::cout << "==AWS-S3Ctr[] region: " << ctr_config.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
-        std::cout << "==AWS-S3Ctr[] Using S3Crt client" << std::endl;
+        std::cout << "==AWS-S3Ctr[" << aws_s3_config.pdc_server_id << "] region: " << ctr_config.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
+        std::cout << "==AWS-S3Ctr[" << aws_s3_config.pdc_server_id << "] Using S3Crt client" << std::endl;
 
         aws_crt_client = std::make_shared<Aws::S3Crt::S3CrtClient>(ctr_config);
     } else {
@@ -513,13 +519,13 @@ void PDC_Server_aws_init(pdc_aws_config config) {
         }
         //Aws::S3::S3Client s3_client(credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(""), clientConfig);
         
-        std::cout << "==AWS-S3[] region: " << clientConfig.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
-        std::cout << "==AWS-S3[] Using S3 client" << std::endl;
+        std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] region: " << clientConfig.region << " / (default) " << Aws::Region::US_WEST_1 << std::endl;
+        std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Using S3 client" << std::endl;
 
         aws_client = std::make_shared<Aws::S3::S3Client>(clientConfig);
     }
 
-    std::cout << "==AWS-S3[] Initialized" << std::endl;
+    std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Initialized" << std::endl;
 }
 
 void PDC_Server_aws_finalize() {

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-#ifndef LIB_H_HEADER
-#define LIB_H_HEADER
+#ifndef E2O_S3_HEADER
+#define E2O_S3_HEADER
 
 #ifdef __cplusplus
 extern "C" 
@@ -9,6 +9,7 @@ extern "C"
 #endif
 
 typedef struct {
+    int pdc_server_id;
     bool use_crt;
     char region[255];
     char key[255];
@@ -30,7 +31,6 @@ bool DeleteBucket(char *bucketName);
 bool ListObjects(char *bucketName);
 bool PutObject(char *bucketName, char *objectName, char *fileName);
 bool PutObjectBuffer(char *bucketName, char *objectName, void *content, uint64_t size, void *metadata);
-//bool PutObjectBufferAsync(char *bucketName, char *objectName, void *content, uint64_t size, void *metadata);
 bool GetObject(char* objectKey, char* fromBucket, void *buffer);
 uint64_t GetObjectBytes(char* objectKey, char* fromBucket, void *buffer);
 uint64_t GetSize(char* objectKey, char* fromBucket);
@@ -48,4 +48,4 @@ pdc_aws_config aws_s3_config;
 Aws::SDKOptions options;
 #endif
 
-#endif /* LIB_H_HEADER */
+#endif /* E2O_S3_HEADER */

@@ -86,6 +86,9 @@ hg_thread_mutex_t meta_obj_map_mutex_g;
 #define ADD_OBJ 1
 #define DEL_OBJ 2
 
+#define S3_SEEK_END 1
+#define S3_SEEK_SET 0
+
 cJSON *json_configuration;
 
 /*******************/

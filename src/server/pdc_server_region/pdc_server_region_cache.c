@@ -1,6 +1,10 @@
 #include "pdc_server_region_cache.h"
 #include "pdc_timing.h"
 
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
+#include "../pdc_e2o/aws/pdc_e2o_s3.h"
+#endif
+
 #ifdef PDC_SERVER_CACHE
 
 #ifdef PDC_SERVER_CACHE_MAX_SIZE

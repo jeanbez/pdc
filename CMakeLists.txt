@@ -489,6 +489,17 @@ if(PDC_ENABLE_S3)
   set(PDC_HAS_S3 1)
 endif()
 
+option(PDC_ENABLE_S3_CHECKPOINT "Enable checkpoint to AWS S3 backend." OFF)
+if(PDC_ENABLE_S3_CHECKPOINT)
+  set(SERVICE_COMPONENTS iam s3 s3-crt sts)
+
+  # Find the AWS SDK for C++ package.
+  find_package(AWSSDK REQUIRED COMPONENTS ${SERVICE_COMPONENTS})
+
+  message(STATUS "AWS backend support enabled for checkpoints")
+  set(PDC_HAS_S3_CHECKPOINT 1)
+endif()
+
 # Metadata with SQLite
 #-----------------------------------------------------------------------------
 option(PDC_ENABLE_SQLITE3 "Enable SQLite3 (experimental)." OFF)

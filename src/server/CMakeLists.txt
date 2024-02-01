@@ -25,10 +25,10 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PDC_SOURCE_DIR}/src/server/include
+  ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws
   ${PDC_SOURCE_DIR}/src/server/pdc_server_region
   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/include
   ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/include
-  ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws
   ${PDC_SOURCE_DIR}/src/server/dablooms
   ${PDC_SOURCE_DIR}/src/api/include
   ${PDC_SOURCE_DIR}/src/api/pdc_obj/include
@@ -58,7 +58,8 @@ add_library(pdc_server_lib
                dablooms/pdc_dablooms.c
                dablooms/pdc_murmur.c
                pdc_hash-table.c
-               pdc_e2o/aws/pdc_e2o_s3.cpp
+               ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_server_s3.c
+               ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
                ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
                ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
                ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
@@ -70,10 +71,11 @@ add_library(pdc_server_lib
                ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
 )
 
-if(PDC_HAS_S3)
+if(PDC_HAS_S3 OR PDC_HAS_S3_CHECKPOINT)
     set(PDC_EXT_LIB_DEPENDENCIES
-    	${PDC_EXT_LIB_DEPENDENCIES}
-	${AWSSDK_LINK_LIBRARIES} ${AWSSDK_PLATFORM_DEPS}
+	   ${PDC_EXT_LIB_DEPENDENCIES}
+	   ${AWSSDK_LINK_LIBRARIES}
+       ${AWSSDK_PLATFORM_DEPS}
     )
 endif()
 

@@ -58,7 +58,7 @@
 #include "pdc_server_region_cache.h"
 #include "pdc_server_region_transfer_metadata_query.h"
 
-#ifdef PDC_HAS_S3
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
 #include "pdc_e2o/aws/pdc_e2o_s3.h"
 #endif
 
@@ -1039,12 +1039,14 @@ drc_access_again:
     // Initialize DART
     PDC_Server_dart_init();
 
-#ifdef PDC_HAS_S3
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     cJSON *json_backend = NULL;
     cJSON *json_backend_s3 = NULL;
     cJSON *json_backend_s3_config = NULL;
 
     pdc_aws_config aws_s3_config;
+
+    aws_s3_config.use_crt = false;
 
     // Parse the configuration
     json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
@@ -1077,8 +1079,8 @@ drc_access_again:
 
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "crt");
 
-    if (cJSON_IsTrue(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
-        aws_s3_config.use_crt = json_backend_s3_config->valueint;
+    if (cJSON_IsTrue(json_backend_s3_config)) {
+        aws_s3_config.use_crt = true;
     }
 
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "max_connections");
@@ -1102,16 +1104,30 @@ drc_access_again:
     printf("AWS :: [configuration]\n");
     printf("    :: [bucket = %s]\n", aws_s3_config.bucket);
     printf("    :: [region = %s]\n", aws_s3_config.region);
-    printf("    :: [crt = %d]\n", aws_s3_config.use_crt);
+    printf("    :: [crt = %s]\n", aws_s3_config.use_crt ? "true" : "false");
     printf("    :: [max_connections = %d]\n", aws_s3_config.max_connections);
     printf("    :: [part_size = %d]\n", aws_s3_config.part_size);
     printf("    :: [throughput_target = %d]\n", aws_s3_config.throughput_target);
+
+    aws_s3_config.pdc_server_id = pdc_server_rank_g;
 
     PDC_Server_aws_init(aws_s3_config);
 #endif
     
     // PDC transfer_request infrastructures
     PDC_server_transfer_request_init();
+
+    /*
+    cJSON *json_server = NULL;
+
+    json_server_config = cJSON_GetObjectItemCaseSensitive(json_server, "cache_size");
+
+    size_t max_cache_size = 0;
+
+    if (cJSON_IsNumber(json_server_config) && (json_server_config->valueint > 0)) {
+        max_cache_size = json_server_config->valueint;
+    }
+    */
 #ifdef PDC_SERVER_CACHE
     PDC_region_server_cache_init();
 #endif
@@ -1170,7 +1186,7 @@ PDC_Server_finalize()
 
     transfer_request_metadata_query_finalize();
 
-#ifdef PDC_HAS_S3
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     PDC_Server_aws_finalize();
 #endif
 
@@ -1510,8 +1526,10 @@ PDC_Server_checkpoint()
 
     fclose(file);
 
-#ifdef PDC_HAS_S3
+#ifdef PDC_HAS_S3_CHECKPOINT
     char object_checkpoint_file[ADDR_MAX + sizeof(int) + 1];
+
+    printf("Pushing checkpoint to AWS\n");
 
     snprintf(object_checkpoint_file, ADDR_MAX, "S3-ROOT/%d/metadata_checkpoint.%d", pdc_server_rank_g, pdc_server_rank_g);
 

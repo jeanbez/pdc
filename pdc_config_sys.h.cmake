@@ -45,6 +45,9 @@
 /* Define if has AWS S3 backend support */
 #cmakedefine PDC_HAS_S3
 
+/* Define if has AWS S3 backend support */
+#cmakedefine PDC_HAS_S3_CHECKPOINT
+
 /* Define if closing server by application */
 #cmakedefine ENABLE_APP_CLOSE_SERVER
 
