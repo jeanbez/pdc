@@ -791,10 +791,10 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     char                self_addr_string[ADDR_MAX];
     char                na_info_string[NA_STRING_INFO_LEN];
     char                hostname[HOSTNAME_LEN];
-    char                *host_addr;
+    char *              host_addr;
     struct hg_init_info init_info = {0};
 
-    cJSON *json_communication = NULL;
+    cJSON *json_communication        = NULL;
     cJSON *json_communication_config = NULL;
 
     /* Set the default mercury transport
@@ -855,7 +855,8 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
         printf("[PDC|deployment] host = [%s]\n", host_addr);
 
         snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, host_addr, port);
-    } else {
+    }
+    else {
         // If no host IP was specified to bind to that interface, fallback to fetching the hostname
         memset(hostname, 0, HOSTNAME_LEN);
         gethostname(hostname, HOSTNAME_LEN - 1);
@@ -1040,8 +1041,8 @@ drc_access_again:
     PDC_Server_dart_init();
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-    cJSON *json_backend = NULL;
-    cJSON *json_backend_s3 = NULL;
+    cJSON *json_backend           = NULL;
+    cJSON *json_backend_s3        = NULL;
     cJSON *json_backend_s3_config = NULL;
 
     pdc_aws_config aws_s3_config;
@@ -1050,7 +1051,7 @@ drc_access_again:
 
     // Parse the configuration
     json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
-    
+
     json_backend_s3 = cJSON_GetObjectItemCaseSensitive(json_backend, "s3");
 
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "key");
@@ -1113,7 +1114,7 @@ drc_access_again:
 
     PDC_Server_aws_init(aws_s3_config);
 #endif
-    
+
     // PDC transfer_request infrastructures
     PDC_server_transfer_request_init();
 
@@ -1531,7 +1532,8 @@ PDC_Server_checkpoint()
 
     printf("Pushing checkpoint to AWS\n");
 
-    snprintf(object_checkpoint_file, ADDR_MAX, "S3-ROOT/%d/metadata_checkpoint.%d", pdc_server_rank_g, pdc_server_rank_g);
+    snprintf(object_checkpoint_file, ADDR_MAX, "S3-ROOT/%d/metadata_checkpoint.%d", pdc_server_rank_g,
+             pdc_server_rank_g);
 
     // Upload a copy to AWS
     PutObject(PDC_AWS_S3_DEFAULT_BUCKET, object_checkpoint_file, checkpoint_file);

@@ -7399,28 +7399,28 @@ PDC_deployment_configure()
 
     FILE *json_file;
     char *configuration;
-    long bytes;
-     
+    long  bytes;
+
     // Open the JSON configuration file for reading
     json_file = fopen(path, "r");
-     
+
     // Quit if the file does not exist
     if (json_file == NULL) {
         fprintf(stderr, "failed to open PDC deployment JSON configuration");
 
         exit(1);
     }
-     
+
     // Get the number of bytes in the file
     fseek(json_file, 0L, SEEK_END);
     bytes = ftell(json_file);
-     
+
     // Reset the file position indicator to the beginning of the file
-    fseek(json_file, 0L, SEEK_SET); 
-     
+    fseek(json_file, 0L, SEEK_SET);
+
     // Allocate sufficient memory for the buffer to hold the text
-    configuration = (char*) calloc(bytes, sizeof(char *));
-     
+    configuration = (char *)calloc(bytes, sizeof(char *));
+
     // Check for memory allocation error
     if (configuration == NULL) {
         exit(1);

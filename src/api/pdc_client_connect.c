@@ -1181,7 +1181,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     perr_t ret_value = SUCCEED;
     char   na_info_string[NA_STRING_INFO_LEN];
     char   hostname[HOSTNAME_LEN];
-    char   *host_addr;
+    char * host_addr;
     int    local_server_id;
     int    use_host;
     /* Set the default mercury transport
@@ -1190,8 +1190,8 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
      *   "ofi+tcp"
      *   "cci+tcp"
      */
-    struct hg_init_info init_info            = {0};
-    char *hg_transport = "ofi+tcp";
+    struct hg_init_info init_info    = {0};
+    char *              hg_transport = "ofi+tcp";
 #ifdef PDC_HAS_CRAY_DRC
     uint32_t          credential, cookie;
     drc_info_handle_t credential_info;
@@ -1200,7 +1200,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     int               rc;
 #endif
 
-    cJSON *json_communication = NULL;
+    cJSON *json_communication        = NULL;
     cJSON *json_communication_config = NULL;
 
     FUNC_ENTER(NULL);
@@ -1226,7 +1226,8 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
         printf("[PDC|deployment] host = [%s]\n", host_addr);
 
         snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, host_addr, port);
-    } else {
+    }
+    else {
         // If no host IP was specified to bind to that interface, fallback to fetching the hostname
         memset(hostname, 0, sizeof(hostname));
         gethostname(hostname, sizeof(hostname));

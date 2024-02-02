@@ -321,19 +321,14 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
     fd = open(storage_location, O_RDWR | O_CREAT, 0666);
 #else
-    printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
+    printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
+           storage_location);
 #endif
     if (region_info->ndim == 1) {
         // printf("server I/O checkpoint 1D\n");
         io_size = region_info->size[0] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
-        ret_value = PDC_Server_S3_write_region(
-            storage_location,
-            buf,
-            io_size,
-            0,
-            S3_SEEK_SET
-        );
+        ret_value = PDC_Server_S3_write_region(storage_location, buf, io_size, 0, S3_SEEK_SET);
 #else
         lseek(fd, region_info->offset[0] * unit, SEEK_SET);
         PDC_POSIX_IO(fd, buf, io_size, is_write);
@@ -345,13 +340,8 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             // printf("server I/O checkpoint 2D 1\n");
             io_size = region_info->size[0] * obj_dims[1] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
-            ret_value = PDC_Server_S3_write_region(
-                storage_location,
-                buf,
-                io_size,
-                region_info->offset[0] * obj_dims[1] * unit,
-                S3_SEEK_SET
-            );
+            ret_value = PDC_Server_S3_write_region(storage_location, buf, io_size,
+                                                   region_info->offset[0] * obj_dims[1] * unit, S3_SEEK_SET);
 #else
             lseek(fd, region_info->offset[0] * obj_dims[1] * unit, SEEK_SET);
             PDC_POSIX_IO(fd, buf, io_size, is_write);
@@ -364,12 +354,9 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
                 io_size = region_info->size[1] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
                 ret_value = PDC_Server_S3_write_region(
-                    storage_location,
-                    buf,
-                    io_size,
+                    storage_location, buf, io_size,
                     ((i + region_info->offset[0]) * obj_dims[1] + region_info->offset[1]) * unit,
-                    S3_SEEK_SET
-                );
+                    S3_SEEK_SET);
 #else
                 /*
                                 printf("lseek to %lld\n",
@@ -391,13 +378,9 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             io_size = region_info->size[0] * region_info->size[1] * region_info->size[2] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
             ret_value = PDC_Server_S3_write_region(
-                storage_location,
-                buf,
-                io_size,
-                region_info->offset[0] * region_info->size[1] * region_info->size[2] * unit,
-                S3_SEEK_SET
-            );
-#else 
+                storage_location, buf, io_size,
+                region_info->offset[0] * region_info->size[1] * region_info->size[2] * unit, S3_SEEK_SET);
+#else
             lseek(fd, region_info->offset[0] * region_info->size[1] * region_info->size[2] * unit, SEEK_SET);
             // printf("server I/O checkpoint 3D 1\n");
             PDC_POSIX_IO(fd, buf, io_size, is_write);
@@ -409,14 +392,12 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             for (i = 0; i < region_info->size[0]; ++i) {
                 io_size = region_info->size[1] * obj_dims[2] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
-                ret_value = PDC_Server_S3_write_region(
-                    storage_location,
-                    buf,
-                    io_size,
-                    ((i + region_info->offset[0]) * obj_dims[1] * obj_dims[2] +
-                       region_info->offset[1] * obj_dims[2]) * unit,
-                    S3_SEEK_SET
-                );
+                ret_value =
+                    PDC_Server_S3_write_region(storage_location, buf, io_size,
+                                               ((i + region_info->offset[0]) * obj_dims[1] * obj_dims[2] +
+                                                region_info->offset[1] * obj_dims[2]) *
+                                                   unit,
+                                               S3_SEEK_SET);
 #else
                 lseek(fd,
                       ((i + region_info->offset[0]) * obj_dims[1] * obj_dims[2] +
@@ -443,14 +424,11 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
                     io_size = region_info->size[2] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
                     ret_value = PDC_Server_S3_write_region(
-                        storage_location,
-                        buf,
-                        io_size,
+                        storage_location, buf, io_size,
                         ((region_info->offset[0] + i) * obj_dims[1] * obj_dims[2] +
-                           (region_info->offset[1] + j) * obj_dims[2] + region_info->offset[2]) *
-                              unit,
-                        S3_SEEK_SET
-                    );
+                         (region_info->offset[1] + j) * obj_dims[2] + region_info->offset[2]) *
+                            unit,
+                        S3_SEEK_SET);
 
 #else
                     lseek(fd,
