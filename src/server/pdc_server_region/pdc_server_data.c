@@ -4955,7 +4955,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                 region_size = overlap_size[0] * unit;
                 region_offset = overlap_region->offset + pos;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                printf("CASE [1] write\n");
                 ret_value = PDC_Server_S3_write_region(
                     region->storage_location,
                     buf + (overlap_offset[0] - region_info->offset[0]) * unit,
@@ -4995,7 +4994,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                    printf("CASE [2] read\n");
                     if (PDC_Server_S3_read(region->storage_location, tmp_buf, overlap_region->data_size, overlap_region->offset)) {
 #else
                     if (pread(region->fd, tmp_buf, overlap_region->data_size, overlap_region->offset) !=
@@ -5018,7 +5016,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     region_size = overlap_region->data_size;
                     region_offset = overlap_region->offset;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                    printf("CASE [3] write\n");
                     ret_value = PDC_Server_S3_write_region(
                         region->storage_location,
                         tmp_buf,
@@ -5058,7 +5055,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                 region_size = overlap_size[0] * overlap_size[1] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                printf("CASE [4] write\n");
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
@@ -5090,7 +5086,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                 region_size = overlap_size[0] * overlap_size[1] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                printf("CASE [5] write\n");
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     tmp_buf,
@@ -5130,7 +5125,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                 region_size = overlap_size[1] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                printf("CASE [6] write\n");
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + ((overlap_offset[0] - region_info->offset[0] + i) *
@@ -5180,7 +5174,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                 region_size = overlap_size[0] * overlap_size[1] * overlap_size[2] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                printf("CASE [7] write\n");
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
@@ -5214,7 +5207,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                 region_size = overlap_size[0] * overlap_size[1] * overlap_size[2] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                printf("CASE [8] write\n");
                                 ret_value = PDC_Server_S3_write_region(
                                     region->storage_location,
                                     tmp_buf,
@@ -5251,7 +5243,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                                     region_size = overlap_size[2] * unit;
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-                                    printf("CASE [9] write\n");
                                     ret_value = PDC_Server_S3_write_region(
                                         region->storage_location,
                                         buf + (((overlap_offset[0] - region_info->offset[0] + i) *
@@ -5294,9 +5285,8 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
         start_posix = MPI_Wtime();
 #endif
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-        printf("CASE [0] get size end\n");
         request_region->offset = GetSize(region->storage_location, PDC_AWS_S3_DEFAULT_BUCKET);
-        printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
+        //printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
         ret_value = PDC_Server_S3_write_region(
             region->storage_location,
             buf,
