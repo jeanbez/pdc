@@ -319,18 +319,19 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
              server_rank, server_rank);
 #ifdef PDC_HAS_S3_CHECKPOINT
     PDC_mkdir(storage_location);
-    //printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
+    // printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
     fd = open(storage_location, O_RDWR | O_CREAT, 0666);
 #else
 <<<<<<< HEAD
     printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
            storage_location);
 =======
-    //printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
+    // printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
+    // storage_location);
 >>>>>>> 65a4923a (refactor code, include OneZone Express, fix issues, include backend hint)
-#endif
-    if (region_info->ndim == 1) {
-        io_size = region_info->size[0] * unit;
+#endif if (region_info->ndim == 1)
+    {
+        io_size   = region_info->size[0] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
         ret_value = PDC_Server_S3_write_region(storage_location, buf, io_size, 0, S3_SEEK_SET);
 #else
@@ -338,11 +339,12 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
         PDC_POSIX_IO(fd, buf, io_size, is_write);
 #endif
     }
-    else if (region_info->ndim == 2) {
+    else if (region_info->ndim == 2)
+    {
         // Check we can directly write the contiguous chunk to the file
         if (region_info->offset[1] == 0 && region_info->size[1] == obj_dims[1]) {
             // printf("server I/O checkpoint 2D 1\n");
-            io_size = region_info->size[0] * obj_dims[1] * unit;
+            io_size   = region_info->size[0] * obj_dims[1] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
             ret_value = PDC_Server_S3_write_region(storage_location, buf, io_size,
                                                    region_info->offset[0] * obj_dims[1] * unit, S3_SEEK_SET);
@@ -355,7 +357,7 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             // printf("server I/O checkpoint 2D 2\n");
             // We have to write line by line
             for (i = 0; i < region_info->size[0]; ++i) {
-                io_size = region_info->size[1] * unit;
+                io_size   = region_info->size[1] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
                 ret_value = PDC_Server_S3_write_region(
                     storage_location, buf, io_size,
@@ -375,11 +377,12 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             }
         }
     }
-    else if (region_info->ndim == 3) {
+    else if (region_info->ndim == 3)
+    {
         // Check we can directly write the contiguous chunk to the file
         if (region_info->offset[1] == 0 && region_info->size[1] == obj_dims[1] &&
             region_info->offset[2] == 0 && region_info->size[2] == obj_dims[2]) {
-            io_size = region_info->size[0] * region_info->size[1] * region_info->size[2] * unit;
+            io_size   = region_info->size[0] * region_info->size[1] * region_info->size[2] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
             ret_value = PDC_Server_S3_write_region(
                 storage_location, buf, io_size,
@@ -425,7 +428,7 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             // We have to write line by line
             for (i = 0; i < region_info->size[0]; ++i) {
                 for (j = 0; j < region_info->size[1]; ++j) {
-                    io_size = region_info->size[2] * unit;
+                    io_size   = region_info->size[2] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
                     ret_value = PDC_Server_S3_write_region(
                         storage_location, buf, io_size,
@@ -488,21 +491,21 @@ print_bulk_data(transfer_request_all_data *request_data)
 int
 parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t access_type)
 {
-    char *   ptr = (char *)buf;
-    int      i, j;
+    char *ptr = (char *)buf;
+    int i, j;
     uint64_t data_size;
 
     // preallocate arrays of size number of objects
-    request_data->obj_id        = (pdcid_t *)malloc(sizeof(pdcid_t) * request_data->n_objs);
-    request_data->obj_ndim      = (int *)malloc(sizeof(int) * request_data->n_objs);
-    request_data->remote_ndim   = (int *)malloc(sizeof(int) * request_data->n_objs);
+    request_data->obj_id = (pdcid_t *)malloc(sizeof(pdcid_t) * request_data->n_objs);
+    request_data->obj_ndim = (int *)malloc(sizeof(int) * request_data->n_objs);
+    request_data->remote_ndim = (int *)malloc(sizeof(int) * request_data->n_objs);
     request_data->remote_offset = (uint64_t **)malloc(sizeof(uint64_t *) * request_data->n_objs * 3);
     request_data->remote_length = request_data->remote_offset + request_data->n_objs;
-    request_data->obj_dims      = request_data->remote_length + request_data->n_objs;
-    request_data->unit          = (size_t *)malloc(sizeof(size_t) * request_data->n_objs);
-    request_data->data_buf      = (char **)malloc(sizeof(char *) * request_data->n_objs);
-    //request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
-    //printf("parse_bulk_data....\n");
+    request_data->obj_dims = request_data->remote_length + request_data->n_objs;
+    request_data->unit = (size_t *)malloc(sizeof(size_t) * request_data->n_objs);
+    request_data->data_buf = (char **)malloc(sizeof(char *) * request_data->n_objs);
+    // request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
+    // printf("parse_bulk_data....\n");
     /*
      * The following times n_objs (one set per object).
      *     obj_id: sizeof(pdcid_t)
@@ -520,10 +523,10 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
         ptr += sizeof(int);
         request_data->unit[i] = *((pdcid_t *)ptr);
         ptr += sizeof(size_t);
-        //request_data->backend[i] = *((uint8_t *)ptr);
-        //ptr += sizeof(uint8_t);
+        // request_data->backend[i] = *((uint8_t *)ptr);
+        // ptr += sizeof(uint8_t);
 
-        //printf("request_data->backend[%d] = %d\n", i, request_data->backend[i]);
+        // printf("request_data->backend[%d] = %d\n", i, request_data->backend[i]);
     }
     /*
      * For each of objects

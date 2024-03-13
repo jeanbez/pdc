@@ -199,9 +199,9 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
         remote_reg_info->ndim   = request_data.remote_ndim[i];
         remote_reg_info->offset = request_data.remote_offset[i];
         remote_reg_info->size   = request_data.remote_length[i];
-        //remote_reg_info->backend = request_data.backend[i];
-        //printf("---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
-        
+        // remote_reg_info->backend = request_data.backend[i];
+        // printf("---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
+
 #ifdef PDC_SERVER_CACHE
         PDC_transfer_request_data_write_out(request_data.obj_id[i], request_data.obj_ndim[i],
                                             request_data.obj_dims[i], remote_reg_info,
@@ -340,9 +340,9 @@ transfer_request_bulk_transfer_write_cb(const struct hg_cb_info *info)
 
     remote_reg_info = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
 
-    remote_reg_info->ndim   = (local_bulk_args->in.remote_region).ndim;
-    remote_reg_info->offset = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
-    remote_reg_info->size   = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
+    remote_reg_info->ndim    = (local_bulk_args->in.remote_region).ndim;
+    remote_reg_info->offset  = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
+    remote_reg_info->size    = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
     remote_reg_info->backend = (local_bulk_args->in).backend;
     if (remote_reg_info->ndim >= 1) {
         (remote_reg_info->offset)[0] = (local_bulk_args->in.remote_region).start_0;

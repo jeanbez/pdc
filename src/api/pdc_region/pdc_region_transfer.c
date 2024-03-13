@@ -295,8 +295,9 @@ PDCregion_transfer_hint(pdcid_t transfer_request_id, uint8_t backend)
 
     ((pdc_transfer_request *)(transferinfo->obj_ptr))->backend = backend;
 
-    // printf("-------> (check) transfer region %d backend hint to %d\n", transfer_request_id, ((pdc_transfer_request *)(transferinfo->obj_ptr))->backend);
-    
+    // printf("-------> (check) transfer region %d backend hint to %d\n", transfer_request_id,
+    // ((pdc_transfer_request *)(transferinfo->obj_ptr))->backend);
+
 done:
     fflush(stdout);
     FUNC_LEAVE(ret_value);
@@ -1511,8 +1512,7 @@ PDCregion_transfer_start(pdcid_t transfer_request_id)
                 transfer_request->output_buf[i], transfer_request->obj_id, transfer_request->obj_servers[i],
                 transfer_request->obj_ndim, transfer_request->obj_dims, transfer_request->remote_region_ndim,
                 transfer_request->output_offsets[i], transfer_request->output_sizes[i], unit,
-                transfer_request->access_type, transfer_request->metadata_id + i,
-                transfer_request->backend);
+                transfer_request->access_type, transfer_request->metadata_id + i, transfer_request->backend);
         }
     }
     else if (transfer_request->region_partition == PDC_OBJ_STATIC) {
@@ -1531,8 +1531,7 @@ PDCregion_transfer_start(pdcid_t transfer_request_id)
             transfer_request->new_buf, transfer_request->obj_id, transfer_request->data_server_id,
             transfer_request->obj_ndim, transfer_request->obj_dims, transfer_request->remote_region_ndim,
             transfer_request->remote_region_offset, transfer_request->remote_region_size, unit,
-            transfer_request->access_type, transfer_request->metadata_id,
-            transfer_request->backend);
+            transfer_request->access_type, transfer_request->metadata_id, transfer_request->backend);
     }
 
     // For POSIX consistency, we block here until the data is received by the server

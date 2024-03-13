@@ -4774,15 +4774,9 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                 // printf("POSIX write from file offset %lu, region start = %lu, region size = %lu\n",
                 // overlap_region->offset, overlap_region->start[0], overlap_region->count[0]);
                 // printf("[1] PDC_Server_write\n");
-                ret_value = PDC_Server_write(
-                    region_info->backend,
-                    region->fd,
-                    region->storage_location,
-                    buf + (overlap_offset[0] - region_info->offset[0]) * unit,
-                    region_size,
-                    region_offset,
-                    SEEK_SET
-                );
+                ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location,
+                                             buf + (overlap_offset[0] - region_info->offset[0]) * unit,
+                                             region_size, region_offset, SEEK_SET);
 
 #ifdef PDC_TIMING
                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
@@ -4804,14 +4798,8 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     start_posix = MPI_Wtime();
 #endif
 
-                    ret_value = PDC_Server_read(
-                        region_info->backend,
-                        region->fd,
-                        region->storage_location,
-                        tmp_buf,
-                        overlap_region->data_size,
-                        overlap_region->offset
-                    );
+                    ret_value = PDC_Server_read(region_info->backend, region->fd, region->storage_location,
+                                                tmp_buf, overlap_region->data_size, overlap_region->offset);
 
                     if (ret_value != SUCCEED) {
                         printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -4834,15 +4822,8 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     region_offset = overlap_region->offset;
 
                     printf("[2] PDC_Server_write\n");
-                    ret_value = PDC_Server_write(
-                        region_info->backend,
-                        region->fd,
-                        region->storage_location,
-                        tmp_buf,
-                        region_size,
-                        region_offset,
-                        SEEK_SET
-                    );
+                    ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location,
+                                                 tmp_buf, region_size, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                     pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
 #endif
@@ -4857,9 +4838,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                     if (region_info->ndim == 2) {
                         if (overlap_offset[1] == overlap_region->start[1] &&
                             overlap_size[1] == overlap_region->count[1]) {
-                            region_offset = overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] * unit;
-                            //lseek(region->fd, region_offset, SEEK_SET);
+                            region_offset =
+                                overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
+                                                             overlap_region->count[1] * unit;
+                            // lseek(region->fd, region_offset, SEEK_SET);
                             if (overlap_offset[1] == region_info->offset[1] &&
                                 overlap_size[1] == region_info->size[1]) {
                                 // Overlap region is exactly the same as input region, so no need to copy
@@ -4871,15 +4853,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                                 // printf("[3] PDC_Server_write\n");
                                 ret_value = PDC_Server_write(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
+                                    region_info->backend, region->fd, region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * unit,
-                                    region_size,
-                                    region_offset,
-                                    SEEK_SET
-                                );
+                                    region_size, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
 #endif
@@ -4895,15 +4872,9 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                                 region_size = overlap_size[0] * overlap_size[1] * unit;
 
                                 // printf("[4] PDC_Server_write\n");
-                                ret_value = PDC_Server_write(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
-                                    tmp_buf,
-                                    region_size,
-                                    region_offset,
-                                    SEEK_SET
-                                );
+                                ret_value = PDC_Server_write(region_info->backend, region->fd,
+                                                             region->storage_location, tmp_buf, region_size,
+                                                             region_offset, SEEK_SET);
 
 #ifdef PDC_TIMING
                                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
@@ -4920,10 +4891,11 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                         else {
                             for (i = 0; i < overlap_size[0]; ++i) {
                                 region_offset = overlap_region->offset +
-                                          ((overlap_offset[0] - overlap_region->start[0] + i) *
-                                               overlap_region->count[1] +
-                                           overlap_offset[1] - overlap_region->start[1]) * unit;
-                                //lseek(region->fd, region_offset, SEEK_SET);
+                                                ((overlap_offset[0] - overlap_region->start[0] + i) *
+                                                     overlap_region->count[1] +
+                                                 overlap_offset[1] - overlap_region->start[1]) *
+                                                    unit;
+                                // lseek(region->fd, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
@@ -4931,16 +4903,12 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                                 // printf("[5] PDC_Server_write\n");
                                 ret_value = PDC_Server_write(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
+                                    region_info->backend, region->fd, region->storage_location,
                                     buf + ((overlap_offset[0] - region_info->offset[0] + i) *
                                                region_info->size[1] +
-                                           overlap_offset[1] - region_info->offset[1]) * unit,
-                                    region_size,
-                                    region_offset,
-                                    SEEK_SET
-                                );
+                                           overlap_offset[1] - region_info->offset[1]) *
+                                              unit,
+                                    region_size, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
 #endif
@@ -4958,10 +4926,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                             overlap_size[2] == overlap_region->count[2] &&
                             overlap_offset[1] == overlap_region->start[1] &&
                             overlap_size[1] == overlap_region->count[1]) {
-                            region_offset = overlap_region->offset + (overlap_offset[0] - overlap_region->start[0]) *
-                                                               overlap_region->count[1] *
-                                                               overlap_region->count[2] * unit;
-                            //lseek(region->fd, region_offset, SEEK_SET);
+                            region_offset = overlap_region->offset +
+                                            (overlap_offset[0] - overlap_region->start[0]) *
+                                                overlap_region->count[1] * overlap_region->count[2] * unit;
+                            // lseek(region->fd, region_offset, SEEK_SET);
                             if (overlap_offset[2] == region_info->offset[2] &&
                                 overlap_size[2] == region_info->size[2] &&
                                 overlap_offset[1] == region_info->offset[1] &&
@@ -4973,15 +4941,10 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                                 // printf("[6] PDC_Server_write\n");
                                 ret_value = PDC_Server_write(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
+                                    region_info->backend, region->fd, region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
                                               region_info->size[1] * region_info->size[2] * unit,
-                                    region_size,
-                                    region_offset,
-                                    SEEK_SET
-                                );
+                                    region_size, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
 #endif
@@ -4998,15 +4961,9 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                                 region_size = overlap_size[0] * overlap_size[1] * overlap_size[2] * unit;
 
                                 // printf("[7] PDC_Server_write\n");
-                                ret_value = PDC_Server_write(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
-                                    tmp_buf,
-                                    region_size,
-                                    region_offset,
-                                    SEEK_SET
-                                );
+                                ret_value = PDC_Server_write(region_info->backend, region->fd,
+                                                             region->storage_location, tmp_buf, region_size,
+                                                             region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                 pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
 #endif
@@ -5017,12 +4974,13 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
                             for (i = 0; i < overlap_size[0]; ++i) {
                                 for (j = 0; j < overlap_size[1]; ++j) {
                                     region_offset = overlap_region->offset +
-                                              (((overlap_offset[0] - overlap_region->start[0] + i) *
-                                                    overlap_region->count[1] +
-                                                (overlap_offset[1] - overlap_region->start[1] + j)) *
-                                                   overlap_region->count[2] +
-                                               overlap_offset[2] - overlap_region->start[2]) * unit;
-                                    //lseek(region->fd, region_offset, SEEK_SET);
+                                                    (((overlap_offset[0] - overlap_region->start[0] + i) *
+                                                          overlap_region->count[1] +
+                                                      (overlap_offset[1] - overlap_region->start[1] + j)) *
+                                                         overlap_region->count[2] +
+                                                     overlap_offset[2] - overlap_region->start[2]) *
+                                                        unit;
+                                    // lseek(region->fd, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                     start_posix = MPI_Wtime();
 #endif
@@ -5030,18 +4988,14 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                                     //  printf("[8] PDC_Server_write\n");
                                     ret_value = PDC_Server_write(
-                                        region_info->backend,
-                                        region->fd,
-                                        region->storage_location,
+                                        region_info->backend, region->fd, region->storage_location,
                                         buf + (((overlap_offset[0] - region_info->offset[0] + i) *
                                                     region_info->size[1] +
                                                 (overlap_offset[1] - region_info->offset[1] + j)) *
                                                    region_info->size[2] +
-                                               overlap_offset[2] - region_info->offset[2]) * unit,
-                                        region_size,
-                                        region_offset,
-                                        SEEK_SET
-                                    );
+                                               overlap_offset[2] - region_info->offset[2]) *
+                                                  unit,
+                                        region_size, region_offset, SEEK_SET);
 #ifdef PDC_TIMING
                                     pdc_server_timings->PDCdata_server_write_posix +=
                                         MPI_Wtime() - start_posix;
@@ -5066,17 +5020,11 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #else
         request_region->offset = lseek(region->fd, 0, SEEK_END);
 #endif
-        //printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
-        //printf("[9] PDC_Server_write\n");
-        ret_value = PDC_Server_write(
-            region_info->backend,
-            region->fd,
-            region->storage_location,
-            buf,
-            write_size,
-            request_region->offset,
-            (region_info->backend == PDC_BACKEND_S3) ? SEEK_END : SEEK_SET
-        );
+        // printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
+        // printf("[9] PDC_Server_write\n");
+        ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location, buf,
+                                     write_size, request_region->offset,
+                                     (region_info->backend == PDC_BACKEND_S3) ? SEEK_END : SEEK_SET);
 
 #ifdef PDC_TIMING
         pdc_server_timings->PDCdata_server_write_posix += MPI_Wtime() - start_posix;
@@ -5142,8 +5090,8 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
     // that to reopen the file.
     PDC_Server_register_obj_region_by_pointer(&region, obj_id, 0);
 
-    //printf("PDC_Server_data_read_from -> region->backend = %d\n", region_info->backend);
-    //printf("PDC_Server_data_read_from -> default_backend_g = %d\n", default_backend_g);
+    // printf("PDC_Server_data_read_from -> region->backend = %d\n", region_info->backend);
+    // printf("PDC_Server_data_read_from -> default_backend_g = %d\n", default_backend_g);
 
     for (i = 0; i < region_info->ndim; i++) {
         request_bytes *= region_info->size[i];
@@ -5181,14 +5129,9 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                 // printf("   [1] overlap_size[0] * unit = %lld\n", overlap_size[0] * unit);
                 // printf("   [1] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
-                ret_value = PDC_Server_read(
-                    region_info->backend,
-                    region->fd,
-                    region->storage_location,
-                    buf + (overlap_offset[0] - region_info->offset[0]) * unit,
-                    overlap_size[0] * unit,
-                    overlap_region->offset + pos
-                );
+                ret_value = PDC_Server_read(region_info->backend, region->fd, region->storage_location,
+                                            buf + (overlap_offset[0] - region_info->offset[0]) * unit,
+                                            overlap_size[0] * unit, overlap_region->offset + pos);
 
                 if (ret_value != SUCCEED) {
                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5216,14 +5159,8 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
                     // printf("   [2] overlap_region->data_size = %lld\n", overlap_region->data_size);
                     // printf("   [2] overlap_region->offset = %lld\n", overlap_region->offset);
-                    ret_value = PDC_Server_read(
-                        region_info->backend,
-                        region->fd,
-                        region->storage_location,
-                        tmp_buf,
-                        overlap_region->data_size,
-                        overlap_region->offset
-                    );
+                    ret_value = PDC_Server_read(region_info->backend, region->fd, region->storage_location,
+                                                tmp_buf, overlap_region->data_size, overlap_region->offset);
 
                     if (ret_value != SUCCEED) {
                         printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5253,16 +5190,14 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
                                 start_posix = MPI_Wtime();
 #endif
 
-                                // printf("   [3] overlap_size[0] * overlap_size[1] * unit = %lld\n", overlap_size[0] * overlap_size[1] * unit);
-                                // printf("   [3] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                // printf("   [3] overlap_size[0] * overlap_size[1] * unit = %lld\n",
+                                // overlap_size[0] * overlap_size[1] * unit); printf("   [3]
+                                // overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
                                 ret_value = PDC_Server_read(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
-                                    buf + (overlap_offset[0] - region_info->offset[0]) * region_info->size[1] * unit,
-                                    overlap_size[0] * overlap_size[1] * unit,
-                                    overlap_region->offset + pos
-                                );
+                                    region_info->backend, region->fd, region->storage_location,
+                                    buf + (overlap_offset[0] - region_info->offset[0]) *
+                                              region_info->size[1] * unit,
+                                    overlap_size[0] * overlap_size[1] * unit, overlap_region->offset + pos);
 
                                 if (ret_value != SUCCEED) {
                                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5278,16 +5213,12 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                 start_posix = MPI_Wtime();
 #endif
-                                // printf("   [4] overlap_size[0] * overlap_size[1] * unit = %lld\n", overlap_size[0] * overlap_size[1] * unit);
-                                // printf("   [4] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                // printf("   [4] overlap_size[0] * overlap_size[1] * unit = %lld\n",
+                                // overlap_size[0] * overlap_size[1] * unit); printf("   [4]
+                                // overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
                                 ret_value = PDC_Server_read(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
-                                    tmp_buf,
-                                    overlap_size[0] * overlap_size[1] * unit,
-                                    overlap_region->offset + pos
-                                );
+                                    region_info->backend, region->fd, region->storage_location, tmp_buf,
+                                    overlap_size[0] * overlap_size[1] * unit, overlap_region->offset + pos);
 
                                 if (ret_value != SUCCEED) {
                                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5314,18 +5245,15 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #endif
 
                                 // printf("   [5] overlap_size[1] * unit = %lld\n", overlap_size[1] * unit);
-                                // printf("   [5] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                // printf("   [5] overlap_region->offset + pos = %lld\n",
+                                // overlap_region->offset + pos);
                                 ret_value = PDC_Server_read(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location, 
+                                    region_info->backend, region->fd, region->storage_location,
                                     buf + ((overlap_offset[0] - region_info->offset[0] + i) *
-                                        region_info->size[1] +
-                                        overlap_offset[1] - region_info->offset[1]) *
-                                        unit,
-                                    overlap_size[1] * unit,
-                                    overlap_region->offset + pos
-                                );
+                                               region_info->size[1] +
+                                           overlap_offset[1] - region_info->offset[1]) *
+                                              unit,
+                                    overlap_size[1] * unit, overlap_region->offset + pos);
 
                                 if (ret_value != SUCCEED) {
                                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5353,17 +5281,16 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
                                 start_posix = MPI_Wtime();
 #endif
 
-                                // printf("   [6] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit = %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
-                                // printf("   [6] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                // printf("   [6] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit =
+                                // %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
+                                // printf("   [6] overlap_region->offset + pos = %lld\n",
+                                // overlap_region->offset + pos);
                                 ret_value = PDC_Server_read(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location, 
+                                    region_info->backend, region->fd, region->storage_location,
                                     buf + (overlap_offset[0] - region_info->offset[0]) *
-                                        region_info->size[1] * region_info->size[2] * unit,
+                                              region_info->size[1] * region_info->size[2] * unit,
                                     overlap_size[0] * overlap_size[1] * overlap_size[2] * unit,
-                                    overlap_region->offset + pos
-                                );
+                                    overlap_region->offset + pos);
 
                                 if (ret_value != SUCCEED) {
                                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5381,16 +5308,14 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
                                 start_posix = MPI_Wtime();
 #endif
 
-                                // printf("   [7] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit = %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
-                                // printf("   [7] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                // printf("   [7] overlap_size[0] * overlap_size[1] * overlap_size[2] * unit =
+                                // %lld\n", overlap_size[0] * overlap_size[1] * overlap_size[2] * unit);
+                                // printf("   [7] overlap_region->offset + pos = %lld\n",
+                                // overlap_region->offset + pos);
                                 ret_value = PDC_Server_read(
-                                    region_info->backend,
-                                    region->fd,
-                                    region->storage_location,
-                                    tmp_buf,
+                                    region_info->backend, region->fd, region->storage_location, tmp_buf,
                                     overlap_size[0] * overlap_size[1] * overlap_size[2] * unit,
-                                    overlap_region->offset + pos
-                                );
+                                    overlap_region->offset + pos);
 
                                 if (ret_value != SUCCEED) {
                                     printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
@@ -5418,24 +5343,22 @@ PDC_Server_data_read_from(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
                                     start_posix = MPI_Wtime();
 #endif
-                                    // printf("   [8] overlap_size[2] * unit = %lld\n", overlap_size[2] * unit);
-                                    // printf("   [8] overlap_region->offset + pos = %lld\n", overlap_region->offset + pos);
+                                    // printf("   [8] overlap_size[2] * unit = %lld\n", overlap_size[2] *
+                                    // unit); printf("   [8] overlap_region->offset + pos = %lld\n",
+                                    // overlap_region->offset + pos);
                                     ret_value = PDC_Server_read(
-                                        region_info->backend,
-                                        region->fd,
-                                        region->storage_location, 
+                                        region_info->backend, region->fd, region->storage_location,
                                         buf + (((overlap_offset[0] - region_info->offset[0] + i) *
-                                            region_info->size[1] +
-                                            (overlap_offset[1] - region_info->offset[1] + j)) *
-                                            region_info->size[2] +
-                                            overlap_offset[2] - region_info->offset[2]) *
-                                            unit,
-                                        overlap_size[2] * unit,
-                                        overlap_region->offset + pos
-                                    );
+                                                    region_info->size[1] +
+                                                (overlap_offset[1] - region_info->offset[1] + j)) *
+                                                   region_info->size[2] +
+                                               overlap_offset[2] - region_info->offset[2]) *
+                                                  unit,
+                                        overlap_size[2] * unit, overlap_region->offset + pos);
 
                                     if (ret_value != SUCCEED) {
-                                        printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n", pdc_server_rank_g);
+                                        printf("==PDC_SERVER[%d]: PDC_Server_read FAILED!\n",
+                                               pdc_server_rank_g);
                                         ret_value = FAIL;
                                         goto done;
                                     }

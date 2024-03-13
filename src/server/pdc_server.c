@@ -82,8 +82,8 @@ sqlite3 *sqlite3_db_g;
 #define PDC_CHECKPOINT_MIN_INTERVAL_SEC 1800
 
 // Global debug variable to control debug printfs
-int is_debug_g       = 0;
-int pdc_client_num_g = 0;
+int is_debug_g        = 0;
+int pdc_client_num_g  = 0;
 int default_backend_g = 0;
 
 hg_class_t *  hg_class_g   = NULL;
@@ -1042,9 +1042,9 @@ drc_access_again:
     PDC_Server_dart_init();
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-    cJSON *json_backend = NULL;
-    cJSON *json_backend_default = NULL;
-    cJSON *json_backend_s3 = NULL;
+    cJSON *json_backend           = NULL;
+    cJSON *json_backend_default   = NULL;
+    cJSON *json_backend_s3        = NULL;
     cJSON *json_backend_s3_config = NULL;
 
     pdc_aws_config aws_s3_config;
@@ -1053,7 +1053,7 @@ drc_access_again:
 
     // Parse the configuration
     json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
-    
+
     json_backend_default = cJSON_GetObjectItemCaseSensitive(json_backend, "default");
 
     default_backend_g = PDC_BACKEND_POSIX;
@@ -1104,7 +1104,8 @@ drc_access_again:
 
     if (cJSON_IsTrue(json_backend_s3_config)) {
         aws_s3_config.use_express = true;
-    } else {
+    }
+    else {
         aws_s3_config.use_express = false;
     }
 
@@ -1112,7 +1113,8 @@ drc_access_again:
 
     if (cJSON_IsTrue(json_backend_s3_config)) {
         aws_s3_config.use_crt = true;
-    } else {
+    }
+    else {
         aws_s3_config.use_crt = false;
     }
 

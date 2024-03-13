@@ -33,11 +33,7 @@
 /**************************/
 
 // TODO: if this does not map to the _pdc_data_loc_t, then change the attributed numbers
-typedef enum {
-    PDC_BACKEND_DEFAULT = 0,
-    PDC_BACKEND_POSIX = 1,
-    PDC_BACKEND_S3 = 4
-} pdc_region_backend_info;
+typedef enum { PDC_BACKEND_DEFAULT = 0, PDC_BACKEND_POSIX = 1, PDC_BACKEND_S3 = 4 } pdc_region_backend_info;
 
 struct pdc_region_info {
     pdcid_t               local_id;

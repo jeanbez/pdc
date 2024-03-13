@@ -56,7 +56,9 @@ AwsWriteableStreamFactory(void *data, int64_t nbytes)
     return [=]() { return new StringViewStream(data, nbytes); };
 }
 
-bool ListObjects() {
+bool
+ListObjects()
+{
     // AWS recommends the use of the revised ListObjectsV2 API instead
     // https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
     // Returns some or all (up to 1,000) of the objects in a bucket with each request
@@ -82,9 +84,12 @@ bool ListObjects() {
     return outcome.IsSuccess();
 }
 
-bool PutObject(char *objectName, char *fileName) {
+bool
+PutObject(char *objectName, char *fileName)
+{
     if (aws_s3_config.use_crt) {
-        // std::cout << "==AWS-S3Ctr[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+        // std::cout << "==AWS-S3Ctr[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from ["
+        // << fileName << "]" << std::endl;
 
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -113,8 +118,10 @@ bool PutObject(char *objectName, char *fileName) {
 
             return false;
         }
-    } else {
-        // std::cout << "==AWS-S3[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+    }
+    else {
+        // std::cout << "==AWS-S3[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" <<
+        // fileName << "]" << std::endl;
 
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -141,11 +148,13 @@ bool PutObject(char *objectName, char *fileName) {
     }
 }
 
-bool PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta) {
+bool
+PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta)
+{
     // std::cout << "bucketName: [" << aws_s3_config.bucket << "]" << std::endl;
     if (aws_s3_config.use_crt) {
         // std::cout << "==AWS-S3Crt[] PutObject [" << objectName << "]"  << std::endl;
-    
+
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
         request.SetKey(objectName);
@@ -167,7 +176,8 @@ bool PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta) 
 
             return false;
         }
-    } else {
+    }
+    else {
         // std::cout << "==AWS-S3[] PutObject [" << objectName << "]" << std::endl;
 
         Aws::S3::Model::PutObjectRequest request;
@@ -196,7 +206,9 @@ bool PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta) 
     }
 }
 
-uint64_t GetSize(char* objectKey) {
+uint64_t
+GetSize(char *objectKey)
+{
     int64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
@@ -208,15 +220,14 @@ uint64_t GetSize(char* objectKey) {
         if (object.IsSuccess()) {
             nbytes = object.GetResultWithOwnership().GetContentLength();
         }
-        else if (object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::RESOURCE_NOT_FOUND && object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::ACCESS_DENIED)
-        {
-            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: "
-                << object .GetError().GetExceptionName() << " - "
-                << object .GetError().GetMessage() << std::endl;
-        } else {
-            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: "
-                << object .GetError().GetExceptionName() << " - "
-                << object .GetError().GetMessage() << std::endl;
+        else if (object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::RESOURCE_NOT_FOUND &&
+                 object.GetError().GetErrorType() != Aws::S3Crt::S3CrtErrors::ACCESS_DENIED) {
+            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: " << object.GetError().GetExceptionName()
+                      << " - " << object.GetError().GetMessage() << std::endl;
+        }
+        else {
+            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: " << object.GetError().GetExceptionName()
+                      << " - " << object.GetError().GetMessage() << std::endl;
         }
     }
     else {
@@ -238,7 +249,9 @@ uint64_t GetSize(char* objectKey) {
     return nbytes;
 }
 
-bool GetObject(char* objectKey, void *buffer) {
+bool
+GetObject(char *objectKey, void *buffer)
+{
     int64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
@@ -314,7 +327,9 @@ bool GetObject(char* objectKey, void *buffer) {
     }
 }
 
-bool GetObjectRange(char* objectKey, void *buffer, uint64_t offset, uint64_t size) {
+bool
+GetObjectRange(char *objectKey, void *buffer, uint64_t offset, uint64_t size)
+{
     int64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
@@ -415,7 +430,9 @@ ListBuckets()
     }
 }
 
-bool CreateBucket() {
+bool
+CreateBucket()
+{
     Aws::S3::Model::CreateBucketRequest request;
     request.SetBucket(aws_s3_config.bucket);
 
@@ -426,14 +443,16 @@ bool CreateBucket() {
                   << std::endl;
     }
     else {
-        std::cout << "Created bucket " << aws_s3_config.bucket <<
-                  " in the specified AWS Region." << std::endl;
+        std::cout << "Created bucket " << aws_s3_config.bucket << " in the specified AWS Region."
+                  << std::endl;
     }
 
     return outcome.IsSuccess();
 }
 
-bool DeleteBucket() {
+bool
+DeleteBucket()
+{
     Aws::S3::Model::DeleteBucketRequest request;
     request.SetBucket(aws_s3_config.bucket);
 
@@ -451,7 +470,9 @@ bool DeleteBucket() {
     return outcome.IsSuccess();
 }
 
-bool DeleteObject(char* objectKey) {
+bool
+DeleteObject(char *objectKey)
+{
     if (aws_s3_config.use_crt) {
         Aws::S3Crt::Model::DeleteObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -519,16 +540,17 @@ PDC_Server_aws_init(pdc_aws_config config)
             ctr_config.region = aws_s3_config.region;
         }
         ctr_config.throughputTargetGbps = aws_s3_config.throughput_target;
-        ctr_config.partSize = aws_s3_config.part_size;
-        ctr_config.maxConnections = aws_s3_config.max_connections;
-        
+        ctr_config.partSize             = aws_s3_config.part_size;
+        ctr_config.maxConnections       = aws_s3_config.max_connections;
+
         if (aws_s3_config.use_express) {
             char endpoint[255];
 
             sprintf(endpoint, "s3express-%s.%s.amazonaws.com", aws_s3_config.zone, aws_s3_config.region);
             printf("endpoint: %s\n", endpoint);
             ctr_config.endpointOverride = endpoint;
-        } else {
+        }
+        else {
             ctr_config.enableEndpointDiscovery = true;
         }
 
@@ -539,9 +561,11 @@ PDC_Server_aws_init(pdc_aws_config config)
         aws_crt_client = std::make_shared<Aws::S3Crt::S3CrtClient>(ctr_config);
 
         if (aws_s3_config.use_express) {
-            aws_crt_client->CreateSession(Aws::S3Crt::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
+            aws_crt_client->CreateSession(
+                Aws::S3Crt::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
         }
-    } else {
+    }
+    else {
         Aws::Client::ClientConfiguration clientConfig;
         if (strlen(aws_s3_config.region) == 0) {
             clientConfig.region = Aws::Region::US_WEST_1;
@@ -559,7 +583,8 @@ PDC_Server_aws_init(pdc_aws_config config)
         aws_client = std::make_shared<Aws::S3::S3Client>(clientConfig);
 
         if (aws_s3_config.use_express) {
-            aws_client->CreateSession(Aws::S3::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
+            aws_client->CreateSession(
+                Aws::S3::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
         }
     }
 
