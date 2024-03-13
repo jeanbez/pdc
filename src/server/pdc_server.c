@@ -84,6 +84,7 @@ sqlite3 *sqlite3_db_g;
 // Global debug variable to control debug printfs
 int is_debug_g       = 0;
 int pdc_client_num_g = 0;
+int default_backend_g = 0;
 
 hg_class_t *  hg_class_g   = NULL;
 hg_context_t *hg_context_g = NULL;
@@ -1041,8 +1042,9 @@ drc_access_again:
     PDC_Server_dart_init();
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-    cJSON *json_backend           = NULL;
-    cJSON *json_backend_s3        = NULL;
+    cJSON *json_backend = NULL;
+    cJSON *json_backend_default = NULL;
+    cJSON *json_backend_s3 = NULL;
     cJSON *json_backend_s3_config = NULL;
 
     pdc_aws_config aws_s3_config;
@@ -1051,6 +1053,20 @@ drc_access_again:
 
     // Parse the configuration
     json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
+    
+    json_backend_default = cJSON_GetObjectItemCaseSensitive(json_backend, "default");
+
+    default_backend_g = PDC_BACKEND_POSIX;
+
+    if (cJSON_IsString(json_backend_default) && (json_backend_default->valuestring != NULL)) {
+        if (strcmp(json_backend_default->valuestring, "posix") == 0) {
+            default_backend_g = PDC_BACKEND_POSIX;
+        }
+
+        if (strcmp(json_backend_default->valuestring, "s3") == 0) {
+            default_backend_g = PDC_BACKEND_S3;
+        }
+    }
 
     json_backend_s3 = cJSON_GetObjectItemCaseSensitive(json_backend, "s3");
 
@@ -1078,10 +1094,26 @@ drc_access_again:
         strcpy(aws_s3_config.region, json_backend_s3_config->valuestring);
     }
 
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "zone");
+
+    if (cJSON_IsString(json_backend_s3_config) && (json_backend_s3_config->valuestring != NULL)) {
+        strcpy(aws_s3_config.zone, json_backend_s3_config->valuestring);
+    }
+
+    json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "express");
+
+    if (cJSON_IsTrue(json_backend_s3_config)) {
+        aws_s3_config.use_express = true;
+    } else {
+        aws_s3_config.use_express = false;
+    }
+
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "crt");
 
     if (cJSON_IsTrue(json_backend_s3_config)) {
         aws_s3_config.use_crt = true;
+    } else {
+        aws_s3_config.use_crt = false;
     }
 
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "max_connections");
@@ -1102,10 +1134,13 @@ drc_access_again:
         aws_s3_config.throughput_target = json_backend_s3_config->valueint;
     }
 
+    printf("    :: [default_backend = %d]\n", default_backend_g);
     printf("AWS :: [configuration]\n");
     printf("    :: [bucket = %s]\n", aws_s3_config.bucket);
     printf("    :: [region = %s]\n", aws_s3_config.region);
+    printf("    :: [zone = %s]\n", aws_s3_config.zone);
     printf("    :: [crt = %s]\n", aws_s3_config.use_crt ? "true" : "false");
+    printf("    :: [express = %s]\n", aws_s3_config.use_express ? "true" : "false");
     printf("    :: [max_connections = %d]\n", aws_s3_config.max_connections);
     printf("    :: [part_size = %d]\n", aws_s3_config.part_size);
     printf("    :: [throughput_target = %d]\n", aws_s3_config.throughput_target);
@@ -1536,7 +1571,7 @@ PDC_Server_checkpoint()
              pdc_server_rank_g);
 
     // Upload a copy to AWS
-    PutObject(PDC_AWS_S3_DEFAULT_BUCKET, object_checkpoint_file, checkpoint_file);
+    PutObject(object_checkpoint_file, checkpoint_file);
 #endif
 
     if (use_tmpfs) {

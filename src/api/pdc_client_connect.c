@@ -3350,7 +3350,7 @@ perr_t
 PDC_Client_transfer_request(void *buf, pdcid_t obj_id, uint32_t data_server_id, int obj_ndim,
                             uint64_t *obj_dims, int remote_ndim, uint64_t *remote_offset,
                             uint64_t *remote_size, size_t unit, pdc_access_t access_type,
-                            pdcid_t *metadata_id)
+                            pdcid_t *metadata_id, uint8_t backend)
 {
     perr_t                            ret_value = SUCCEED;
     hg_return_t                       hg_ret    = HG_SUCCESS;
@@ -3376,6 +3376,7 @@ PDC_Client_transfer_request(void *buf, pdcid_t obj_id, uint32_t data_server_id, 
     // printf("rank = %d, PDC_Client_transfer_request_start data_server_id = %u\n", pdc_client_mpi_rank_g,
     // data_server_id);
     in.access_type = access_type;
+    in.backend     = backend;
     in.remote_unit = unit;
     in.obj_id      = obj_id;
     in.obj_ndim    = obj_ndim;

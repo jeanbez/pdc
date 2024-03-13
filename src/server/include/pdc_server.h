@@ -107,6 +107,8 @@ extern double   server_hash_insert_time_g;
 extern double   server_bloom_init_time_g;
 extern uint32_t n_metadata_g;
 
+extern int default_backend_g;
+
 /***************************************/
 /* Library-private Function Prototypes */
 /***************************************/

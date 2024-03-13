@@ -8,14 +8,15 @@ extern "C" {
 #endif
 
 typedef struct {
-    int      pdc_server_id;
-    bool     use_crt;
-    char     region[255];
-    char     key[255];
-    char     secret[255];
-    char     bucket[255];
-    char     endpoint[255];
-    double   throughput_target;
+    int pdc_server_id;
+    bool use_crt;
+    bool use_express;
+    char region[255];
+    char zone[255];
+    char key[255];
+    char secret[255];
+    char bucket[255];
+    double throughput_target;
     uint64_t part_size;
     int      max_connections;
 } pdc_aws_config;
@@ -24,17 +25,17 @@ void PDC_Server_aws_init(pdc_aws_config config);
 void PDC_Server_aws_finalize();
 
 bool ListBuckets();
-bool CreateBucket(char *bucketName);
-bool DeleteBucket(char *bucketName);
+bool CreateBucket();
+bool DeleteBucket();
 
-bool     ListObjects(char *bucketName);
-bool     PutObject(char *bucketName, char *objectName, char *fileName);
-bool     PutObjectBuffer(char *bucketName, char *objectName, void *content, uint64_t size, void *metadata);
-bool     GetObject(char *objectKey, char *fromBucket, void *buffer);
-uint64_t GetObjectBytes(char *objectKey, char *fromBucket, void *buffer);
-uint64_t GetSize(char *objectKey, char *fromBucket);
-bool     GetObjectRange(char *objectKey, char *fromBucket, void *buffer, uint64_t offset, uint64_t size);
-bool     DeleteObject(char *objectKey, char *fromBucket);
+bool ListObjects();
+bool PutObject(char *objectName, char *fileName);
+bool PutObjectBuffer(char *objectName, void *content, uint64_t size, void *metadata);
+bool GetObject(char* objectKey, void *buffer);
+uint64_t GetObjectBytes(char* objectKey, void *buffer);
+uint64_t GetSize(char* objectKey);
+bool GetObjectRange(char* objectKey, void *buffer, uint64_t offset, uint64_t size);
+bool DeleteObject(char* objectKey);
 
 #ifdef __cplusplus
 } // extern "C"

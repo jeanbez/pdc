@@ -25,6 +25,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PDC_SOURCE_DIR}/src/server/include
+  ${PDC_SOURCE_DIR}/src/server/pdc_e2o/include
+  ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix
   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws
   ${PDC_SOURCE_DIR}/src/server/pdc_server_region
   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/include
@@ -51,24 +53,26 @@ endif()
 
 
 add_library(pdc_server_lib
-               pdc_server.c
-               pdc_server_metadata_index.c
-               pdc_server_metadata.c
-               pdc_client_server_common.c
-               dablooms/pdc_dablooms.c
-               dablooms/pdc_murmur.c
-               pdc_hash-table.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_server_s3.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
-               ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer.c
-               ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer_metadata_query.c
-               ${PDC_SOURCE_DIR}/src/utils/pdc_region_utils.c
-               ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_analysis_common.c
-               ${PDC_SOURCE_DIR}/src/api/pdc_transform/pdc_transforms_common.c
-               ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
+   pdc_server.c
+   pdc_server_metadata_index.c
+   pdc_server_metadata.c
+   pdc_client_server_common.c
+   dablooms/pdc_dablooms.c
+   dablooms/pdc_murmur.c
+   pdc_hash-table.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_backend_s3.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
+   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/pdc_e2o.c   
+   ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer.c
+   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer_metadata_query.c
+   ${PDC_SOURCE_DIR}/src/utils/pdc_region_utils.c
+   ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_analysis_common.c
+   ${PDC_SOURCE_DIR}/src/api/pdc_transform/pdc_transforms_common.c
+   ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
 )
 
 if(PDC_HAS_S3 OR PDC_HAS_S3_CHECKPOINT)

@@ -86,8 +86,8 @@ hg_thread_mutex_t meta_obj_map_mutex_g;
 #define ADD_OBJ 1
 #define DEL_OBJ 2
 
-#define S3_SEEK_END 1
-#define S3_SEEK_SET 0
+//#define S3_SEEK_END 1
+//#define S3_SEEK_SET 0
 
 cJSON *json_configuration;
 
@@ -113,7 +113,7 @@ struct _pdc_iterator_info *PDC_Block_iterator_cache;
 
 typedef enum { PDC_POSIX = 0, PDC_DAOS = 1 } _pdc_io_plugin_t;
 
-typedef enum { PDC_NONE = 0, PDC_LUSTRE = 1, PDC_BB = 2, PDC_MEM = 3 } _pdc_data_loc_t;
+typedef enum { PDC_NONE = 0, PDC_LUSTRE = 1, PDC_BB = 2, PDC_MEM = 3, PDC_S3 = 4 } _pdc_data_loc_t;
 
 typedef enum {
     PDC_RECV_REGION_OP_NONE  = 0,
@@ -798,6 +798,7 @@ typedef struct {
     uint32_t               meta_server_id;
 
     uint8_t access_type;
+    uint8_t backend;
 } transfer_request_in_t;
 
 /* Define transfer_request_out_t */
@@ -2687,6 +2688,11 @@ hg_proc_transfer_request_in_t(hg_proc_t proc, void *data)
         return ret;
     }
     ret = hg_proc_uint8_t(proc, &struct_data->access_type);
+    if (ret != HG_SUCCESS) {
+        // HG_LOG_ERROR("Proc error");
+        return ret;
+    }
+    ret = hg_proc_uint8_t(proc, &struct_data->backend);
     if (ret != HG_SUCCESS) {
         // HG_LOG_ERROR("Proc error");
         return ret;

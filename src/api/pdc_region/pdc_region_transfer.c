@@ -102,6 +102,8 @@ typedef struct pdc_transfer_request {
     uint64_t *obj_dims;
     // Pointer to object info, can be useful sometimes. We do not want to go through PDC ID list many times.
     struct _pdc_obj_info *obj_pointer;
+
+    uint8_t backend;
 } pdc_transfer_request;
 
 // We pack all arguments for a start_all call to the same data server in a single structure, so we do not need
@@ -269,6 +271,32 @@ PDCregion_transfer_create(void *buf, pdc_access_t access_type, pdcid_t obj_id, p
     */
     ret_value = PDC_id_register(PDC_TRANSFER_REQUEST, p);
 
+done:
+    fflush(stdout);
+    FUNC_LEAVE(ret_value);
+}
+
+perr_t
+PDCregion_transfer_hint(pdcid_t transfer_request_id, uint8_t backend)
+{
+    FUNC_ENTER(NULL);
+
+    struct _pdc_id_info * transferinfo;
+    pdc_transfer_request *transfer_request;
+    perr_t                ret_value = SUCCEED;
+    FUNC_ENTER(NULL);
+
+    transferinfo = PDC_find_id(transfer_request_id);
+    if (transferinfo == NULL) {
+        goto done;
+    }
+
+    // printf("-------> transfer region %d backend hint to %d\n", transfer_request_id, backend);
+
+    ((pdc_transfer_request *)(transferinfo->obj_ptr))->backend = backend;
+
+    // printf("-------> (check) transfer region %d backend hint to %d\n", transfer_request_id, ((pdc_transfer_request *)(transferinfo->obj_ptr))->backend);
+    
 done:
     fflush(stdout);
     FUNC_LEAVE(ret_value);
@@ -1483,7 +1511,8 @@ PDCregion_transfer_start(pdcid_t transfer_request_id)
                 transfer_request->output_buf[i], transfer_request->obj_id, transfer_request->obj_servers[i],
                 transfer_request->obj_ndim, transfer_request->obj_dims, transfer_request->remote_region_ndim,
                 transfer_request->output_offsets[i], transfer_request->output_sizes[i], unit,
-                transfer_request->access_type, transfer_request->metadata_id + i);
+                transfer_request->access_type, transfer_request->metadata_id + i,
+                transfer_request->backend);
         }
     }
     else if (transfer_request->region_partition == PDC_OBJ_STATIC) {
@@ -1502,7 +1531,8 @@ PDCregion_transfer_start(pdcid_t transfer_request_id)
             transfer_request->new_buf, transfer_request->obj_id, transfer_request->data_server_id,
             transfer_request->obj_ndim, transfer_request->obj_dims, transfer_request->remote_region_ndim,
             transfer_request->remote_region_offset, transfer_request->remote_region_size, unit,
-            transfer_request->access_type, transfer_request->metadata_id);
+            transfer_request->access_type, transfer_request->metadata_id,
+            transfer_request->backend);
     }
 
     // For POSIX consistency, we block here until the data is received by the server

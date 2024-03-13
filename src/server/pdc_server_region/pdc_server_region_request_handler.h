@@ -182,7 +182,7 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
     start = MPI_Wtime();
 #endif
 
-    // printf("entering transfer_request_all_bulk_transfer_write_cb\n");
+    printf("entering transfer_request_all_bulk_transfer_write_cb\n");
     remote_reg_info     = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
     request_data.n_objs = local_bulk_args->in.n_objs;
     parse_bulk_data(local_bulk_args->data_buf, &request_data, PDC_WRITE);
@@ -199,6 +199,9 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
         remote_reg_info->ndim   = request_data.remote_ndim[i];
         remote_reg_info->offset = request_data.remote_offset[i];
         remote_reg_info->size   = request_data.remote_length[i];
+        //remote_reg_info->backend = request_data.backend[i];
+        //printf("---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
+        
 #ifdef PDC_SERVER_CACHE
         PDC_transfer_request_data_write_out(request_data.obj_id[i], request_data.obj_ndim[i],
                                             request_data.obj_dims[i], remote_reg_info,
@@ -333,13 +336,14 @@ transfer_request_bulk_transfer_write_cb(const struct hg_cb_info *info)
     start = MPI_Wtime();
 #endif
 
-    // printf("entering transfer bulk callback\n");
+    printf("entering transfer bulk callback\n");
 
     remote_reg_info = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
 
     remote_reg_info->ndim   = (local_bulk_args->in.remote_region).ndim;
     remote_reg_info->offset = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
     remote_reg_info->size   = (uint64_t *)malloc(remote_reg_info->ndim * sizeof(uint64_t));
+    remote_reg_info->backend = (local_bulk_args->in).backend;
     if (remote_reg_info->ndim >= 1) {
         (remote_reg_info->offset)[0] = (local_bulk_args->in.remote_region).start_0;
         (remote_reg_info->size)[0]   = (local_bulk_args->in.remote_region).count_0;
@@ -846,6 +850,9 @@ HG_TEST_RPC_CB(transfer_request, handle)
             (remote_reg_info->size)[2]   = (in.remote_region).count_2;
             obj_dims[2]                  = in.obj_dim2;
         }
+
+        remote_reg_info->backend = in.backend;
+
 #ifdef PDC_SERVER_CACHE
         PDC_transfer_request_data_read_from(in.obj_id, in.obj_ndim, obj_dims, remote_reg_info,
                                             (void *)local_bulk_args->data_buf, in.remote_unit);

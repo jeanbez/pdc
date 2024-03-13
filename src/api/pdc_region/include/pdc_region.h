@@ -31,6 +31,14 @@
 /**************************/
 /* Library Public Struct */
 /**************************/
+
+// TODO: if this does not map to the _pdc_data_loc_t, then change the attributed numbers
+typedef enum {
+    PDC_BACKEND_DEFAULT = 0,
+    PDC_BACKEND_POSIX = 1,
+    PDC_BACKEND_S3 = 4
+} pdc_region_backend_info;
+
 struct pdc_region_info {
     pdcid_t               local_id;
     struct _pdc_obj_info *obj;
@@ -41,6 +49,7 @@ struct pdc_region_info {
     int                   registered_op;
     void *                buf;
     size_t                unit;
+    uint8_t               backend;
 };
 
 typedef enum {
@@ -99,6 +108,15 @@ void PDCregion_free(struct pdc_region_info *region);
 
 pdcid_t PDCregion_transfer_create(void *buf, pdc_access_t access_type, pdcid_t obj_id, pdcid_t local_reg,
                                   pdcid_t remote_reg);
+/**
+ * Hint future use of a region by suggesting a storage location
+ *
+ * \param region_id [IN]        ID of the object
+ *
+ * \return Non-negative on success/Negative on failure
+ */
+perr_t PDCregion_transfer_hint(pdcid_t transfer_request_id, uint8_t backend);
+
 /**
  * Start a region transfer from local region to remote region for an object on buf.
  *

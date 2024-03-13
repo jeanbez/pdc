@@ -109,6 +109,7 @@ set(PROGRAMS
   region_transfer_write_only
   region_transfer_read_only
   region_transfer_write_read
+  region_transfer_write_read_hint
   region_transfer_all
   region_transfer_all_2D
   region_transfer_all_3D
@@ -279,6 +280,7 @@ add_test(NAME region_transfer_overlap_2D WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPU
 add_test(NAME region_transfer_overlap_3D WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_overlap_3D )
 add_test(NAME region_transfer_merge WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_merge )
 add_test(NAME region_transfer_write_read WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_write_read )
+add_test(NAME region_transfer_write_read_hint    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_write_read_hint )
 add_test(NAME region_transfer_all    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_all )
 add_test(NAME region_transfer_all_2D    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_all_2D )
 add_test(NAME region_transfer_all_3D    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_test.sh ./region_transfer_all_3D )

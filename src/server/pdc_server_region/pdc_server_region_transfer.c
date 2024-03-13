@@ -2,9 +2,10 @@
 #include "pdc_server_data.h"
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
-#include "../pdc_e2o/aws/pdc_server_s3.h"
+#include "../pdc_e2o/aws/pdc_backend_s3.h"
 #include "../pdc_e2o/aws/pdc_e2o_s3.h"
 #endif
+#include "../pdc_e2o/posix/pdc_backend_posix.h"
 
 static int io_by_region_g = 1;
 
@@ -318,14 +319,17 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
              server_rank, server_rank);
 #ifdef PDC_HAS_S3_CHECKPOINT
     PDC_mkdir(storage_location);
-    printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
+    //printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
     fd = open(storage_location, O_RDWR | O_CREAT, 0666);
 #else
+<<<<<<< HEAD
     printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
            storage_location);
+=======
+    //printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
+>>>>>>> 65a4923a (refactor code, include OneZone Express, fix issues, include backend hint)
 #endif
     if (region_info->ndim == 1) {
-        // printf("server I/O checkpoint 1D\n");
         io_size = region_info->size[0] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
         ret_value = PDC_Server_S3_write_region(storage_location, buf, io_size, 0, S3_SEEK_SET);
@@ -497,13 +501,15 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
     request_data->obj_dims      = request_data->remote_length + request_data->n_objs;
     request_data->unit          = (size_t *)malloc(sizeof(size_t) * request_data->n_objs);
     request_data->data_buf      = (char **)malloc(sizeof(char *) * request_data->n_objs);
-
+    //request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
+    //printf("parse_bulk_data....\n");
     /*
      * The following times n_objs (one set per object).
      *     obj_id: sizeof(pdcid_t)
      *     obj_ndim: sizeof(int)
      *     remote remote_ndim: sizeof(int)
      *     unit: sizeof(size_t)
+     *     backend: sizeof(int)
      */
     for (i = 0; i < request_data->n_objs; ++i) {
         request_data->obj_id[i] = *((pdcid_t *)ptr);
@@ -514,6 +520,10 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
         ptr += sizeof(int);
         request_data->unit[i] = *((pdcid_t *)ptr);
         ptr += sizeof(size_t);
+        //request_data->backend[i] = *((uint8_t *)ptr);
+        //ptr += sizeof(uint8_t);
+
+        //printf("request_data->backend[%d] = %d\n", i, request_data->backend[i]);
     }
     /*
      * For each of objects

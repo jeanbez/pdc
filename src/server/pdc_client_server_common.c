@@ -7440,5 +7440,17 @@ PDC_deployment_configure()
 
     json_configuration = cJSON_Parse(configuration);
 
+    if (json_configuration == NULL)
+    {
+        fprintf(stderr, "Unable to parse the PDC JSON configuration file!\n");
+
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+        exit(1);
+    }
+
     free(configuration);
 }
