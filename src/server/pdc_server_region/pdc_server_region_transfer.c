@@ -322,14 +322,10 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     // printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
     fd = open(storage_location, O_RDWR | O_CREAT, 0666);
 #else
-<<<<<<< HEAD
-    printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
-           storage_location);
-=======
     // printf("---> REGION (AWS) -> PDC_Server_transfer_request_io -> storage_location = %s\n",
     // storage_location);
->>>>>>> 65a4923a (refactor code, include OneZone Express, fix issues, include backend hint)
-#endif if (region_info->ndim == 1)
+#endif
+    if (region_info->ndim == 1)
     {
         io_size   = region_info->size[0] * unit;
 #ifdef PDC_HAS_S3_CHECKPOINT
