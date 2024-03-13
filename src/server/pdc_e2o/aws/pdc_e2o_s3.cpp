@@ -84,7 +84,7 @@ bool ListObjects() {
 
 bool PutObject(char *objectName, char *fileName) {
     if (aws_s3_config.use_crt) {
-        std::cout << "==AWS-S3Ctr[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+        // std::cout << "==AWS-S3Ctr[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
 
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -109,12 +109,12 @@ bool PutObject(char *objectName, char *fileName) {
             return true;
         }
         else {
-            std::cout << "[AWS-S3] PutObject error:\n" << outcome.GetError() << std::endl << std::endl;
+            std::cerr << "[AWS-S3] PutObject error:\n" << outcome.GetError() << std::endl << std::endl;
 
             return false;
         }
     } else {
-        std::cout << "==AWS-S3[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
+        // std::cout << "==AWS-S3[] PutObject [" << aws_s3_config.bucket << "/" << objectName << "] from [" << fileName << "]" << std::endl;
 
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -142,10 +142,10 @@ bool PutObject(char *objectName, char *fileName) {
 }
 
 bool PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta) {
-    std::cout << "bucketName: [" << aws_s3_config.bucket << "]" << std::endl;
+    // std::cout << "bucketName: [" << aws_s3_config.bucket << "]" << std::endl;
     if (aws_s3_config.use_crt) {
-        std::cout << "==AWS-S3Crt[] PutObject [" << objectName << "]" << std::endl;
-
+        // std::cout << "==AWS-S3Crt[] PutObject [" << objectName << "]"  << std::endl;
+    
         Aws::S3Crt::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
         request.SetKey(objectName);
@@ -167,9 +167,8 @@ bool PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta) 
 
             return false;
         }
-    }
-    else {
-        std::cout << "==AWS-S3[] PutObject [" << objectName << "]" << std::endl;
+    } else {
+        // std::cout << "==AWS-S3[] PutObject [" << objectName << "]" << std::endl;
 
         Aws::S3::Model::PutObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
@@ -382,7 +381,7 @@ ListBuckets()
         Aws::S3Crt::Model::ListBucketsOutcome outcome = aws_crt_client->ListBuckets();
 
         if (outcome.IsSuccess()) {
-            std::cout << "[AWS-S3] All buckets under my account:" << std::endl;
+            // std::cout << "[AWS-S3] All buckets under my account:" << std::endl;
 
             for (auto const &bucket : outcome.GetResult().GetBuckets()) {
                 std::cout << "  * " << bucket.GetName() << std::endl;
