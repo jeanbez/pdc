@@ -336,8 +336,6 @@ transfer_request_bulk_transfer_write_cb(const struct hg_cb_info *info)
     start = MPI_Wtime();
 #endif
 
-    printf("entering transfer bulk callback\n");
-
     remote_reg_info = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
 
     remote_reg_info->ndim    = (local_bulk_args->in.remote_region).ndim;

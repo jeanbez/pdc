@@ -5017,8 +5017,6 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
         request_region->offset = PDC_Server_size(region_info->backend, region->fd, region->storage_location);
-#else
-        request_region->offset = lseek(region->fd, 0, SEEK_END);
 #endif
         // printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
         // printf("[9] PDC_Server_write\n");

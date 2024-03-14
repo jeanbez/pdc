@@ -1229,7 +1229,7 @@ PDC_Server_finalize()
 #endif
 
     if (json_configuration != NULL) {
-        cJSON_Delete(json_configuration);
+        // cJSON_Delete(json_configuration);
     }
 
     // Debug: check duplicates
