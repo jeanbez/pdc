@@ -1228,7 +1228,9 @@ PDC_Server_finalize()
     PDC_Server_aws_finalize();
 #endif
 
-    cJSON_Delete(json_configuration);
+    if (json_configuration != NULL) {
+        cJSON_Delete(json_configuration);
+    }
 
     // Debug: check duplicates
     if (is_debug_g == 1) {
