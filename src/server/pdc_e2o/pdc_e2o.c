@@ -53,7 +53,8 @@ PDC_Server_size(int backend, int fd, char *location)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
         return PDC_Server_S3_size(location);
-    } else {
+    }
+    else {
         return lseek(fd, 0, SEEK_END);
     }
 }
