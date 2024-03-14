@@ -1183,7 +1183,7 @@ PDC_Client_mercury_init(hg_class_t **hg_class, hg_context_t **hg_context, int po
     char   hostname[HOSTNAME_LEN];
     char * host_addr;
     int    local_server_id;
-    int    use_host;
+    int    use_host = false;
     /* Set the default mercury transport
      * but enable overriding that to any of:
      *   "ofi+gni"
