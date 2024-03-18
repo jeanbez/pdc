@@ -6,15 +6,21 @@
 #include "pdc_client_connect.h"
 #include "pdc_client_server_common.h"
 
-double diff(struct timespec start_time, struct timespec end_time) {
-    return ((end_time.tv_nsec - start_time.tv_nsec) + ((end_time.tv_sec - start_time.tv_sec)*1000000000L)) / 1000000000.0;
+double
+diff(struct timespec start_time, struct timespec end_time)
+{
+    return ((end_time.tv_nsec - start_time.tv_nsec) + ((end_time.tv_sec - start_time.tv_sec) * 1000000000L)) /
+           1000000000.0;
 }
 
-long long int nano(struct timespec time) {
-    return ((time.tv_nsec) + ((time.tv_sec)*1000000000L));
+long long int
+nano(struct timespec time)
+{
+    return ((time.tv_nsec) + ((time.tv_sec) * 1000000000L));
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     perr_t ret;
 
@@ -23,7 +29,7 @@ int main(int argc, char **argv)
 
     double elapsed;
 
-    size_t ndim = 3;
+    size_t   ndim = 3;
     uint64_t dims[3];
 
     dims[0] = 64;
@@ -49,7 +55,7 @@ int main(int argc, char **argv)
     pdcid_t cont_scale, obj_scale;
 
     struct pdc_cont_info *cont_info;
-    struct pdc_obj_info *obj_info;
+    struct pdc_obj_info * obj_info;
 
     char cont_name[128], obj_name[128], tag_value[128], *tag_value_ret;
     char cont_name_scale[128], obj_name_scale[128];
@@ -60,7 +66,7 @@ int main(int argc, char **argv)
     strcpy(tag_value, "ACCEPTED");
 
     pdc_var_type_t value_type;
-    psize_t value_size;
+    psize_t        value_size;
 
     // ------------------------------------------------------------------------
 
@@ -97,7 +103,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-property-create", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-property-create", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -145,7 +152,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-create-scale", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-create-scale", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -166,7 +174,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-create", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-create", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -186,7 +195,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-set-dimensions", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-set-dimensions", nano(start_time),
+            nano(end_time), elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -206,7 +216,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-set-type", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-set-type", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -254,7 +265,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-create-scale", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-create-scale", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -277,7 +289,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-delete-scale", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-delete-scale", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -300,7 +313,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-delete-scale", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-delete-scale", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -320,7 +334,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-put-tag", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-put-tag", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -345,7 +360,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-get-tag", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-get-tag", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -410,7 +426,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-get-info", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-get-info", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -441,7 +458,8 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     if (obj_info->obj_pt->dims[1] != dims[1]) {
-        printf("second dimension is not properly inherited from object property @ line %d\n", __LINE__);;
+        printf("second dimension is not properly inherited from object property @ line %d\n", __LINE__);
+        ;
         return EXIT_FAILURE;
     }
     if (obj_info->obj_pt->dims[2] != dims[2]) {
@@ -557,7 +575,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-close", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "object-property-close", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -578,7 +597,8 @@ int main(int argc, char **argv)
     // execution time in nano seconds and convert it to seconds
     elapsed = diff(start_time, end_time);
 
-    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-property-close", nano(start_time), nano(end_time), elapsed);
+    fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-property-close", nano(start_time), nano(end_time),
+            elapsed);
 
     // ------------------------------------------------------------------------
 
@@ -624,7 +644,7 @@ int main(int argc, char **argv)
     elapsed = diff(start_time, end_time);
 
     fprintf(file, "%d;%s;%ld;%ld;%lf\n", rank, "container-delete", nano(start_time), nano(end_time), elapsed);
-    
+
     // we can close the container after this test
     PDCcont_close(cont);
 
@@ -638,7 +658,7 @@ int main(int argc, char **argv)
     ret = PDCclose(pdc);
 
     clock_gettime(CLOCK_MONOTONIC, &end_time);
-    
+
     if (ret < 0) {
         printf("fail to close PDC @ line %d\n", __LINE__);
         return EXIT_FAILURE;
