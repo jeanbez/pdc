@@ -42,6 +42,7 @@ endif()
 include_directories(${TEST_EXT_INCLUDE_DIRS})
 
 set(PROGRAMS
+  sc-24-metrics
   pdc_init
 #  create_prop
 #  create_region
