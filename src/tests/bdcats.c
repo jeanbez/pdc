@@ -65,6 +65,7 @@ main(int argc, char **argv)
     uint64_t *offset;
     uint64_t *offset_remote;
     uint64_t *mysize;
+    double    t0, t1;
 
     pdcid_t transfer_request_x, transfer_request_y, transfer_request_z, transfer_request_px,
         transfer_request_py, transfer_request_pz, transfer_request_id1, transfer_request_id2;
@@ -79,7 +80,7 @@ main(int argc, char **argv)
     if (argc == 2) {
         numparticles = atoll(argv[1]);
         if (rank == 0)
-            printf("Writing %" PRIu64 " number of particles with %d clients.\n", numparticles, size);
+            printf("Reading %" PRIu64 " number of particles with %d clients.\n", numparticles, size);
     }
 
     x = (float *)malloc(numparticles * sizeof(float));
@@ -171,6 +172,7 @@ main(int argc, char **argv)
 
 #ifdef ENABLE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
+    t0 = MPI_Wtime();
 #endif
 
     transfer_request_x = PDCregion_transfer_create(&x[0], PDC_READ, obj_xx, region_x, region_xx);
@@ -215,6 +217,14 @@ main(int argc, char **argv)
         return 1;
     }
 
+#ifdef ENABLE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+    t0 = MPI_Wtime();
+    if (rank == 0) {
+        printf("Transfer create time: %.5e\n", t0 - t1);
+    }
+#endif
+
     ret = PDCregion_transfer_start(transfer_request_x);
     if (ret != SUCCEED) {
         printf("Failed to start transfer for region_xx\n");
@@ -256,6 +266,14 @@ main(int argc, char **argv)
         return 1;
     }
 
+#ifdef ENABLE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+    t1 = MPI_Wtime();
+    if (rank == 0) {
+        printf("Transfer start time: %.5e\n", t1 - t0);
+    }
+#endif
+
     ret = PDCregion_transfer_wait(transfer_request_x);
     if (ret != SUCCEED) {
         printf("Failed to transfer wait for region_xx\n");
@@ -296,6 +314,14 @@ main(int argc, char **argv)
         printf("Failed to transfer wait for region_id22\n");
         return 1;
     }
+
+#ifdef ENABLE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+    t0 = MPI_Wtime();
+    if (rank == 0) {
+        printf("Transfer wait time: %.5e\n", t0 - t1);
+    }
+#endif
 
     ret = PDCregion_transfer_close(transfer_request_x);
     if (ret != SUCCEED) {
@@ -339,86 +365,124 @@ main(int argc, char **argv)
     }
 
     PDC_timing_report("read");
+#ifdef ENABLE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+    t1 = MPI_Wtime();
+    if (rank == 0) {
+        printf("Transfer close time: %.5e\n", t1 - t0);
+    }
+#endif
 
-    if (PDCobj_close(obj_xx) < 0)
+    if (PDCobj_close(obj_xx) < 0) {
         printf("fail to close obj_xx\n");
+        return 1;
+    }
 
-    if (PDCobj_close(obj_yy) < 0)
+    if (PDCobj_close(obj_yy) < 0) {
         printf("fail to close object obj_yy\n");
-
-    if (PDCobj_close(obj_zz) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_zz) < 0) {
         printf("fail to close object obj_zz\n");
-
-    if (PDCobj_close(obj_pxx) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_pxx) < 0) {
         printf("fail to close object obj_pxx\n");
-
-    if (PDCobj_close(obj_pyy) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_pyy) < 0) {
         printf("fail to close object obj_pyy\n");
-
-    if (PDCobj_close(obj_pzz) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_pzz) < 0) {
         printf("fail to close object obj_pzz\n");
-
-    if (PDCobj_close(obj_id11) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_id11) < 0) {
         printf("fail to close object obj_id11\n");
-
-    if (PDCobj_close(obj_id22) < 0)
+        return 1;
+    }
+    if (PDCobj_close(obj_id22) < 0) {
         printf("fail to close object obj_id22\n");
-
-    if (PDCregion_close(region_x) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_x) < 0) {
         printf("fail to close region region_x\n");
-
-    if (PDCregion_close(region_y) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_y) < 0) {
         printf("fail to close region region_y\n");
-
-    if (PDCregion_close(region_z) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_z) < 0) {
         printf("fail to close region region_z\n");
-
-    if (PDCregion_close(region_px) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_px) < 0) {
         printf("fail to close region region_px\n");
-
-    if (PDCregion_close(region_py) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_py) < 0) {
         printf("fail to close region region_py\n");
-
-    if (PDCobj_close(region_pz) < 0)
+        return 1;
+    }
+    if (PDCobj_close(region_pz) < 0) {
         printf("fail to close region region_pz\n");
-
-    if (PDCobj_close(region_id1) < 0)
+        return 1;
+    }
+    if (PDCobj_close(region_id1) < 0) {
         printf("fail to close region region_id1\n");
-
-    if (PDCobj_close(region_id2) < 0)
+        return 1;
+    }
+    if (PDCobj_close(region_id2) < 0) {
         printf("fail to close region region_id2\n");
-
-    if (PDCregion_close(region_xx) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_xx) < 0) {
         printf("fail to close region region_xx\n");
-
-    if (PDCregion_close(region_yy) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_yy) < 0) {
         printf("fail to close region region_yy\n");
-
-    if (PDCregion_close(region_zz) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_zz) < 0) {
         printf("fail to close region region_zz\n");
-
-    if (PDCregion_close(region_pxx) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_pxx) < 0) {
         printf("fail to close region region_pxx\n");
-
-    if (PDCregion_close(region_pyy) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_pyy) < 0) {
         printf("fail to close region region_pyy\n");
-
-    if (PDCregion_close(region_pzz) < 0)
+        return 1;
+    }
+    if (PDCregion_close(region_pzz) < 0) {
         printf("fail to close region region_pzz\n");
-
-    if (PDCobj_close(region_id11) < 0)
+        return 1;
+    }
+    if (PDCobj_close(region_id11) < 0) {
         printf("fail to close region region_id11\n");
-
-    if (PDCobj_close(region_id22) < 0)
+        return 1;
+    }
+    if (PDCobj_close(region_id22) < 0) {
         printf("fail to close region region_id22\n");
-
+        return 1;
+    }
     // close a container
-    if (PDCcont_close(cont_id) < 0)
+    if (PDCcont_close(cont_id) < 0) {
         printf("fail to close container c1\n");
+        return 1;
+    }
 
-    if (PDCclose(pdc_id) < 0)
+    if (PDCclose(pdc_id) < 0) {
         printf("fail to close PDC\n");
-
+        return 1;
+    }
+    free(offset);
+    free(offset_remote);
+    free(mysize);
     free(x);
     free(y);
     free(z);
@@ -427,9 +491,6 @@ main(int argc, char **argv)
     free(pz);
     free(id1);
     free(id2);
-    free(offset);
-    free(offset_remote);
-    free(mysize);
 
 #ifdef ENABLE_MPI
     MPI_Finalize();
