@@ -564,6 +564,8 @@ PDC_Server_aws_init(pdc_aws_config config)
             aws_crt_client->CreateSession(
                 Aws::S3Crt::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
         }
+
+        std::cout << "==AWS-S3Ctr[" << aws_s3_config.pdc_server_id << "] Initialized" << std::endl;
     }
     else {
         Aws::Client::ClientConfiguration clientConfig;
@@ -586,9 +588,9 @@ PDC_Server_aws_init(pdc_aws_config config)
             aws_client->CreateSession(
                 Aws::S3::Model::CreateSessionRequest().WithBucket(aws_s3_config.bucket));
         }
-    }
 
-    std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Initialized" << std::endl;
+        std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Initialized" << std::endl;
+    }
 }
 
 void
