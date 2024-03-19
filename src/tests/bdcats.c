@@ -219,9 +219,9 @@ main(int argc, char **argv)
 
 #ifdef ENABLE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
-    t0 = MPI_Wtime();
+    t1 = MPI_Wtime();
     if (rank == 0) {
-        printf("Transfer create time: %.5e\n", t0 - t1);
+        printf("Transfer create time: %.5e\n", t1 - t0);
     }
 #endif
 
@@ -268,9 +268,9 @@ main(int argc, char **argv)
 
 #ifdef ENABLE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
-    t1 = MPI_Wtime();
+    t0 = MPI_Wtime();
     if (rank == 0) {
-        printf("Transfer start time: %.5e\n", t1 - t0);
+        printf("Transfer start time: %.5e\n", t0 - t1);
     }
 #endif
 
@@ -317,9 +317,9 @@ main(int argc, char **argv)
 
 #ifdef ENABLE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
-    t0 = MPI_Wtime();
+    t1 = MPI_Wtime();
     if (rank == 0) {
-        printf("Transfer wait time: %.5e\n", t0 - t1);
+        printf("Transfer wait time: %.5e\n", t1 - t0);
     }
 #endif
 
@@ -369,7 +369,7 @@ main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     t1 = MPI_Wtime();
     if (rank == 0) {
-        printf("Transfer close time: %.5e\n", t1 - t0);
+        printf("Transfer close time: %.5e\n", t0 - t1);
     }
 #endif
 
