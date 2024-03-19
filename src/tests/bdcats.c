@@ -367,7 +367,7 @@ main(int argc, char **argv)
     PDC_timing_report("read");
 #ifdef ENABLE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
-    t1 = MPI_Wtime();
+    t0 = MPI_Wtime();
     if (rank == 0) {
         printf("Transfer close time: %.5e\n", t0 - t1);
     }
