@@ -13,6 +13,7 @@ if(MERCURY_FOUND)
 endif()
 
 #HDF5
+set(CMAKE_PREFIX_PATH $ENV{HDF5_DIR})
 find_package(HDF5 MODULE)
   if(NOT HDF5_FOUND)
     message(STATUS "Could not find HDF5, fallback to NO_MODULE mode.")
@@ -88,6 +89,9 @@ set(PROGRAMS
   pdc_import
   pdc_export
   pdc_ls
+  pdc_import_eqsim
+  pdc_access_eqsim
+  hdf5_access_eqsim
   )
 
 add_library(cjson cjson/cJSON.c)
