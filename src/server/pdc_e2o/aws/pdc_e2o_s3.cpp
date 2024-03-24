@@ -225,10 +225,6 @@ GetSize(char *objectKey)
             std::cerr << "[AWS-S3Crt] GetSize - Head Object error: " << object.GetError().GetExceptionName()
                       << " - " << object.GetError().GetMessage() << std::endl;
         }
-        else {
-            std::cerr << "[AWS-S3Crt] GetSize - Head Object error: " << object.GetError().GetExceptionName()
-                      << " - " << object.GetError().GetMessage() << std::endl;
-        }
     }
     else {
         Aws::S3::Model::HeadObjectRequest headObj;

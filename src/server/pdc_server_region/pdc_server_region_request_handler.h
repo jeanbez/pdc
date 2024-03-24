@@ -182,7 +182,7 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
     start = MPI_Wtime();
 #endif
 
-    printf("entering transfer_request_all_bulk_transfer_write_cb\n");
+    //printf("entering transfer_request_all_bulk_transfer_write_cb\n");
     remote_reg_info     = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
     request_data.n_objs = local_bulk_args->in.n_objs;
     parse_bulk_data(local_bulk_args->data_buf, &request_data, PDC_WRITE);
@@ -199,7 +199,7 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
         remote_reg_info->ndim   = request_data.remote_ndim[i];
         remote_reg_info->offset = request_data.remote_offset[i];
         remote_reg_info->size   = request_data.remote_length[i];
-        // remote_reg_info->backend = request_data.backend[i];
+        //remote_reg_info->backend = request_data.backend[i];
         // printf("---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
 
 #ifdef PDC_SERVER_CACHE
