@@ -814,6 +814,7 @@ typedef struct transfer_request_all_in_t {
     uint64_t total_buf_size;
     int32_t  n_objs;
     uint8_t  access_type;
+    uint8_t  backend;
 } transfer_request_all_in_t;
 
 /* Define transfer_request_all_out_t */
@@ -2816,6 +2817,11 @@ hg_proc_transfer_request_all_in_t(hg_proc_t proc, void *data)
         return ret;
     }
     ret = hg_proc_uint8_t(proc, &struct_data->access_type);
+    if (ret != HG_SUCCESS) {
+        // HG_LOG_ERROR("Proc error");
+        return ret;
+    }
+    ret = hg_proc_uint8_t(proc, &struct_data->backend);
     if (ret != HG_SUCCESS) {
         // HG_LOG_ERROR("Proc error");
         return ret;

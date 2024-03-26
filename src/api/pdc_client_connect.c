@@ -3034,7 +3034,7 @@ done:
 
 perr_t
 PDC_Client_transfer_request_all(int n_objs, pdc_access_t access_type, uint32_t data_server_id, char *bulk_buf,
-                                hg_size_t bulk_size, uint64_t *metadata_id)
+                                hg_size_t bulk_size, uint64_t *metadata_id, uint8_t backend)
 {
     perr_t                                ret_value = SUCCEED;
     hg_return_t                           hg_ret    = HG_SUCCESS;
@@ -3057,7 +3057,7 @@ PDC_Client_transfer_request_all(int n_objs, pdc_access_t access_type, uint32_t d
     in.n_objs         = n_objs;
     in.access_type    = access_type;
     in.total_buf_size = bulk_size;
-
+    in.backend        = backend;
     // Compute metadata server id
     // meta_server_id    = PDC_get_server_by_obj_id(obj_id[0], pdc_server_num_g);
 
@@ -3389,7 +3389,7 @@ PDC_Client_transfer_request(void *buf, pdcid_t obj_id, uint32_t data_server_id, 
     if (in.obj_ndim >= 3) {
         in.obj_dim2 = obj_dims[2];
     }
-
+    // printf("PDC_Client_transfer_request -> in.backend = %d\n", in.backend);
     // Compute metadata server id
     meta_server_id = PDC_get_server_by_obj_id(obj_id, pdc_server_num_g);
 
@@ -3421,7 +3421,6 @@ PDC_Client_transfer_request(void *buf, pdcid_t obj_id, uint32_t data_server_id, 
         PGOTO_ERROR(FAIL,
                     "PDC_Client_transfer_request(): Could not create local bulk data handle @ line %d\n",
                     __LINE__);
-
     hg_ret = HG_Forward(client_send_transfer_request_handle, client_send_transfer_request_rpc_cb,
                         &transfer_args, &in);
 

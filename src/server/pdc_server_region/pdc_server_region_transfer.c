@@ -497,8 +497,8 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
     request_data->obj_dims      = request_data->remote_length + request_data->n_objs;
     request_data->unit          = (size_t *)malloc(sizeof(size_t) * request_data->n_objs);
     request_data->data_buf      = (char **)malloc(sizeof(char *) * request_data->n_objs);
-    // request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
-    // printf("parse_bulk_data....\n");
+    request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
+
     /*
      * The following times n_objs (one set per object).
      *     obj_id: sizeof(pdcid_t)
@@ -516,9 +516,9 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
         ptr += sizeof(int);
         request_data->unit[i] = *((pdcid_t *)ptr);
         ptr += sizeof(size_t);
-        // request_data->backend[i] = *((uint8_t *)ptr);
-        // ptr += sizeof(uint8_t);
-
+        request_data->backend[i] = *((uint8_t *)ptr);
+        ptr += sizeof(uint8_t);
+        
         // printf("request_data->backend[%d] = %d\n", i, request_data->backend[i]);
     }
     /*

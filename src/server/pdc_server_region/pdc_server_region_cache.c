@@ -407,7 +407,7 @@ PDC_region_cache_copy(char *buf, char *buf2, const uint64_t *offset, const uint6
 int
 PDC_region_cache_register(uint64_t obj_id, int obj_ndim, const uint64_t *obj_dims, const char *buf,
                           size_t buf_size, const uint64_t *offset, const uint64_t *size, int ndim,
-                          size_t unit)
+                          size_t unit, uint8_t backend)
 {
     pdc_obj_cache *         obj_cache_iter, *obj_cache = NULL;
     struct pdc_region_info *region_cache_info;
@@ -477,7 +477,8 @@ PDC_region_cache_register(uint64_t obj_id, int obj_ndim, const uint64_t *obj_dim
     region_cache_info->size   = region_cache_info->offset + ndim;
     region_cache_info->buf    = (char *)malloc(sizeof(char) * buf_size);
     region_cache_info->unit   = unit;
-
+    region_cache_info->backend = backend;
+    // printf("PDC_region_cache_register ----->  region_cache_info->backend = %d\n", backend);
     memcpy(region_cache_info->offset, offset, sizeof(uint64_t) * ndim);
     memcpy(region_cache_info->size, size, sizeof(uint64_t) * ndim);
     memcpy(region_cache_info->buf, buf, sizeof(char) * buf_size);
@@ -545,7 +546,7 @@ PDC_transfer_request_data_write_out(uint64_t obj_id, int obj_ndim, const uint64_
 #endif
 
     // Write 1GB at a time
-
+    // printf("PDC_transfer_request_data_write_out ~~~~> region_info->backend = %d\n", region_info->backend);
     uint64_t write_size = 0;
     if (region_info->ndim >= 1)
         write_size = unit * region_info->size[0];
@@ -605,7 +606,7 @@ PDC_transfer_request_data_write_out(uint64_t obj_id, int obj_ndim, const uint64_
     pthread_mutex_unlock(&pdc_obj_cache_list_mutex);
     if (!flag) {
         PDC_region_cache_register(obj_id, obj_ndim, obj_dims, buf, write_size, region_info->offset,
-                                  region_info->size, region_info->ndim, unit);
+                                  region_info->size, region_info->ndim, unit, region_info->backend);
     }
 
     // PDC_Server_data_write_out2(obj_id, region_info, buf, unit);
