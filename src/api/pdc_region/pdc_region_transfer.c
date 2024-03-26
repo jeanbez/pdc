@@ -229,7 +229,7 @@ PDCregion_transfer_create(void *buf, pdc_access_t access_type, pdcid_t obj_id, p
     p->unit               = PDC_get_var_type_size(p->mem_type);
     p->consistency        = obj2->obj_pt->obj_prop_pub->consistency;
     unit                  = p->unit;
-    p->backend            = 0; 
+    p->backend            = 0;
     /*
         printf("creating a request from obj %s metadata id = %llu, access_type = %d\n",
        obj2->obj_info_pub->name, (long long unsigned)obj2->obj_info_pub->meta_id, access_type);
@@ -1279,7 +1279,8 @@ PDC_Client_start_all_requests(pdc_transfer_request_start_all_pkg **transfer_requ
             // transfer_requests[index]->data_server_id, n_objs);
             PDC_Client_transfer_request_all(n_objs, transfer_requests[index]->transfer_request->access_type,
                                             transfer_requests[index]->data_server_id, bulk_buf, bulk_buf_size,
-                                            metadata_id + index, transfer_requests[index]->transfer_request->backend);
+                                            metadata_id + index,
+                                            transfer_requests[index]->transfer_request->backend);
             // printf("transfer request towards data server %d\n", transfer_requests[index]->data_server_id);
             for (j = index; j < i; ++j) {
                 // All requests share the same bulk buffer, reference counter is also shared among all
@@ -1314,7 +1315,8 @@ PDC_Client_start_all_requests(pdc_transfer_request_start_all_pkg **transfer_requ
         // transfer_requests[index]->data_server_id, n_objs);
         PDC_Client_transfer_request_all(n_objs, transfer_requests[index]->transfer_request->access_type,
                                         transfer_requests[index]->data_server_id, bulk_buf, bulk_buf_size,
-                                        metadata_id + index, transfer_requests[index]->transfer_request->backend);
+                                        metadata_id + index,
+                                        transfer_requests[index]->transfer_request->backend);
         // printf("transfer request towards data server %d\n", transfer_requests[index]->data_server_id);
         for (j = index; j < size; ++j) {
             // All requests share the same bulk buffer, reference counter is also shared among all

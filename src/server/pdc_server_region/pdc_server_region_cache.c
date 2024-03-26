@@ -471,12 +471,12 @@ PDC_region_cache_register(uint64_t obj_id, int obj_ndim, const uint64_t *obj_dim
     /* printf("checkpoint region_obj_cache_size = %d\n", obj_cache->region_obj_cache_size); */
     obj_cache->region_cache_end->region_cache_info =
         (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
-    region_cache_info         = obj_cache->region_cache_end->region_cache_info;
-    region_cache_info->ndim   = ndim;
-    region_cache_info->offset = (uint64_t *)malloc(sizeof(uint64_t) * ndim * 2);
-    region_cache_info->size   = region_cache_info->offset + ndim;
-    region_cache_info->buf    = (char *)malloc(sizeof(char) * buf_size);
-    region_cache_info->unit   = unit;
+    region_cache_info          = obj_cache->region_cache_end->region_cache_info;
+    region_cache_info->ndim    = ndim;
+    region_cache_info->offset  = (uint64_t *)malloc(sizeof(uint64_t) * ndim * 2);
+    region_cache_info->size    = region_cache_info->offset + ndim;
+    region_cache_info->buf     = (char *)malloc(sizeof(char) * buf_size);
+    region_cache_info->unit    = unit;
     region_cache_info->backend = backend;
     // printf("PDC_region_cache_register ----->  region_cache_info->backend = %d\n", backend);
     memcpy(region_cache_info->offset, offset, sizeof(uint64_t) * ndim);

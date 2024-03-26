@@ -518,7 +518,7 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
         ptr += sizeof(size_t);
         request_data->backend[i] = *((uint8_t *)ptr);
         ptr += sizeof(uint8_t);
-        
+
         // printf("request_data->backend[%d] = %d\n", i, request_data->backend[i]);
     }
     /*
