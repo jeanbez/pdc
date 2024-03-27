@@ -16,7 +16,7 @@ typedef struct {
     char     key[255];
     char     secret[255];
     char     bucket[255];
-    uint64_t   throughput_target;
+    uint64_t throughput_target;
     uint64_t part_size;
     int      max_connections;
 } pdc_aws_config;
