@@ -54,9 +54,9 @@ transfer_request_all_bulk_transfer_read_cb(const struct hg_cb_info *info)
 #endif
 
     // printf("entering transfer_request_all_bulk_transfer_read_cb\n");
-    handle_info         = HG_Get_info(local_bulk_args->handle);
+    handle_info              = HG_Get_info(local_bulk_args->handle);
     remote_reg_info->backend = local_bulk_args->in.backend;
-    request_data.n_objs = local_bulk_args->in.n_objs;
+    request_data.n_objs      = local_bulk_args->in.n_objs;
     parse_bulk_data(local_bulk_args->data_buf, &request_data, PDC_READ);
     // print_bulk_data(&request_data);
 
