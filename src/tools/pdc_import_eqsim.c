@@ -62,9 +62,10 @@ main(int argc, char **argv)
         }
     }
 
+    // map some region in the middle instead of the border where we have only zeroes
     offset[0] = 0;
-    offset[1] = chunk_size[1] * start_x[rank];
-    offset[2] = chunk_size[2] * start_y[rank];
+    offset[1] = 10000; // chunk_size[1] * start_x[rank];
+    offset[2] = 10000; // chunk_size[2] * start_y[rank];
     offset[3] = 0;
 
     /* size[0] = chunk_size[0]; */
@@ -165,6 +166,7 @@ main(int argc, char **argv)
 #endif
 
     transfer_req = PDCregion_transfer_create(data, PDC_WRITE, obj, local_reg, remote_reg);
+    PDCregion_transfer_hint(transfer_req, PDC_BACKEND_S3);
     PDCregion_transfer_start(transfer_req);
     PDCregion_transfer_wait(transfer_req);
     PDCregion_transfer_close(transfer_req);
