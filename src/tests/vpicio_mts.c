@@ -157,9 +157,6 @@ main(int argc, char **argv)
         if (rank == 0)
             printf("\n[%s] #Step  %d\n", cur_time, iter);
         t0 = MPI_Wtime();
-        if (rank == 0) {
-            printf("\n#Step  %llu\n", i);
-        }
 #endif
         PDCprop_set_obj_time_step(obj_prop_float, iter);
         PDCprop_set_obj_time_step(obj_prop_int, iter);
