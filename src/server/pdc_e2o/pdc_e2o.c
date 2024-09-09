@@ -7,6 +7,7 @@ PDC_Server_write(int backend, int fd, char *location, void *buf, uint64_t size, 
 {
     perr_t ret_value = SUCCEED;
 
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
         // TODO: review if we still need the write option back
@@ -14,11 +15,14 @@ PDC_Server_write(int backend, int fd, char *location, void *buf, uint64_t size, 
         ret_value = PDC_Server_S3_write_region(location, buf, size, offset, seek);
     }
     else {
+#endif
         // printf("----> POSIX write backend (fd = %d, seek = %d, offset = %d) A\n", fd, seek, offset);
         offset = lseek(fd, offset, seek);
         // printf("----> POSIX write backend (fd = %d, seek = %d, offset = %d) D\n", fd, seek, offset);
         ret_value = PDC_Server_posix_write(fd, buf, size);
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     }
+#endif
 
     return ret_value;
 }
@@ -28,6 +32,7 @@ PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, u
 {
     perr_t ret_value = SUCCEED;
 
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
         // printf("----> S3 read backend\n");
@@ -40,9 +45,12 @@ PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, u
         }
     }
     else {
+#endif
         // printf("----> POSIX read backend (fd = %d, size = %d, offset = %d) D\n", fd, size, offset);
         ret_value = PDC_Server_posix_read(fd, buf, size, offset);
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     }
+#endif
 
     return ret_value;
 }
@@ -50,11 +58,11 @@ PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, u
 int
 PDC_Server_size(int backend, int fd, char *location)
 {
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
         return PDC_Server_S3_size(location);
     }
-    else {
-        return lseek(fd, 0, SEEK_END);
-    }
+#endif
+    return lseek(fd, 0, SEEK_END);
 }

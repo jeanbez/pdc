@@ -51,29 +51,51 @@ if(PDC_ENABLE_TIMING)
     add_definitions(-DPDC_TIMING=1)
 endif()
 
-
-add_library(pdc_server_lib
-   pdc_server.c
-   pdc_server_metadata_index.c
-   pdc_server_metadata.c
-   pdc_client_server_common.c
-   dablooms/pdc_dablooms.c
-   dablooms/pdc_murmur.c
-   pdc_hash-table.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_backend_s3.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
-   ${PDC_SOURCE_DIR}/src/server/pdc_e2o/pdc_e2o.c   
-   ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer.c
-   ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer_metadata_query.c
-   ${PDC_SOURCE_DIR}/src/utils/pdc_region_utils.c
-   ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_analysis_common.c
-   ${PDC_SOURCE_DIR}/src/api/pdc_transform/pdc_transforms_common.c
-   ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
-)
+if(PDC_HAS_S3 OR PDC_HAS_S3_CHECKPOINT)
+    add_library(pdc_server_lib
+       pdc_server.c
+       pdc_server_metadata_index.c
+       pdc_server_metadata.c
+       pdc_client_server_common.c
+       dablooms/pdc_dablooms.c
+       dablooms/pdc_murmur.c
+       pdc_hash-table.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_backend_s3.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/pdc_e2o.c   
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer_metadata_query.c
+       ${PDC_SOURCE_DIR}/src/utils/pdc_region_utils.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_analysis_common.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_transform/pdc_transforms_common.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
+    )
+else()
+    add_library(pdc_server_lib
+       pdc_server.c
+       pdc_server_metadata_index.c
+       pdc_server_metadata.c
+       pdc_client_server_common.c
+       dablooms/pdc_dablooms.c
+       dablooms/pdc_murmur.c
+       pdc_hash-table.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_e2o/pdc_e2o.c   
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_data.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_cache.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer.c
+       ${PDC_SOURCE_DIR}/src/server/pdc_server_region/pdc_server_region_transfer_metadata_query.c
+       ${PDC_SOURCE_DIR}/src/utils/pdc_region_utils.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_analysis_common.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_transform/pdc_transforms_common.c
+       ${PDC_SOURCE_DIR}/src/api/pdc_analysis/pdc_hist_pkg.c
+    )
+endif()
 
 if(PDC_HAS_S3 OR PDC_HAS_S3_CHECKPOINT)
     set(PDC_EXT_LIB_DEPENDENCIES
