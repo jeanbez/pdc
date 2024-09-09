@@ -1,7 +1,14 @@
+<<<<<<<< HEAD:.github/workflows/ubuntu.yml
+name: Ubuntu
+========
 name: MacOS
+>>>>>>>> develop:.github/workflows/macos.yml
 
 on:
   pull_request:
+    branches: [ stable, develop ]
+
+  push:
     branches: [ stable, develop ]
 
   # Allows to run this workflow manually from the Actions tab
@@ -22,7 +29,11 @@ jobs:
         run: |
           mkdir build && cd build
           cmake ../ -DBUILD_MPI_TESTING=ON -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DPDC_ENABLE_MPI=ON -DCMAKE_C_COMPILER=mpicc
+<<<<<<<< HEAD:.github/workflows/ubuntu.yml
+          make -j2
+========
           make -j 2
+>>>>>>>> develop:.github/workflows/macos.yml
 
       - name: Test PDC
         working-directory: build

@@ -387,7 +387,7 @@ endif()
 #-----------------------------------------------------------------------------
 # SERVER CACHE option
 #-----------------------------------------------------------------------------
-option(PDC_SERVER_CACHE "Enable Server Caching." OFF)
+option(PDC_SERVER_CACHE "Enable Server Caching." ON)
 if(PDC_SERVER_CACHE)
   set(PDC_SERVER_CACHE 1)
   set(PDC_SERVER_CACHE_MAX_GB "32" CACHE STRING "Max GB for server cache")
@@ -472,6 +472,28 @@ option(PDC_ENABLE_FASTBIT "Enable Fastbit." OFF)
 if(PDC_ENABLE_FASTBIT)
     find_library(FASTBIT fastbit)
     set(ENABLE_FASTBIT 1)
+endif()
+
+
+# Metadata with RocksDB
+#-----------------------------------------------------------------------------
+option(PDC_ENABLE_ROCKSDB "Enable RocksDB (experimental)." OFF)
+if(PDC_ENABLE_ROCKSDB)
+    set(ENABLE_ROCKSDB 1)
+endif()
+
+# Metadata with SQLite
+#-----------------------------------------------------------------------------
+option(PDC_ENABLE_SQLITE3 "Enable SQLite3 (experimental)." OFF)
+if(PDC_ENABLE_SQLITE3)
+    set(ENABLE_SQLITE3 1)
+endif()
+
+# Check availability of symbols
+#-----------------------------------------------------------------------------
+check_symbol_exists(malloc_usable_size "malloc.h" HAVE_MALLOC_USABLE_SIZE)
+if(HAVE_MALLOC_USABLE_SIZE)
+  add_definitions(-DHAVE_MALLOC_USABLE_SIZE)
 endif()
 
 #-----------------------------------------------------------------------------

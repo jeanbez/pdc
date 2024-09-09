@@ -101,7 +101,6 @@ char **                   all_addr_strings_g       = NULL;
 int                       is_hash_table_init_g     = 0;
 int                       lustre_stripe_size_mb_g  = 16;
 int                       lustre_total_ost_g       = 0;
-int                       pdc_disable_checkpoint_g = 0;
 
 hg_id_t get_remote_metadata_register_id_g;
 hg_id_t buf_map_server_register_id_g;
@@ -1147,6 +1146,9 @@ drc_access_again:
     PDC_Server_aws_init(aws_s3_config);
 #endif
 
+    // Initialize DART
+    PDC_Server_dart_init();
+
     // PDC transfer_request infrastructures
     PDC_server_transfer_request_init();
 
@@ -2060,7 +2062,7 @@ PDC_Server_loop(hg_context_t *hg_context)
         /* Do not try to make progress anymore if we're done */
         if (hg_atomic_cas32(&close_server_g, 1, 1))
             break;
-        hg_ret = HG_Progress(hg_context, 1000);
+        hg_ret = HG_Progress(hg_context, 200);
 
     } while (hg_ret == HG_SUCCESS || hg_ret == HG_TIMEOUT);
 
@@ -2189,6 +2191,7 @@ PDC_Server_mercury_register()
     PDC_metadata_add_kvtag_register(hg_class_g);
     PDC_metadata_get_kvtag_register(hg_class_g);
     PDC_metadata_del_kvtag_register(hg_class_g);
+    PDC_send_rpc_register(hg_class_g);
 
     // bulk
     PDC_query_partial_register(hg_class_g);
@@ -2358,13 +2361,6 @@ PDC_Server_get_env()
         use_sqlite3_g = 1;
         if (pdc_server_rank_g == 0)
             printf("==PDC_SERVER[%d]: using SQLite3 for kvtag\n", pdc_server_rank_g);
-    }
-
-    tmp_env_char = getenv("PDC_DISABLE_CHECKPOINT");
-    if (tmp_env_char != NULL && strcmp(tmp_env_char, "TRUE") == 0) {
-        pdc_disable_checkpoint_g = 1;
-        if (pdc_server_rank_g == 0)
-            printf("==PDC_SERVER[0]: checkpoint disabled!\n");
     }
 
     if (pdc_server_rank_g == 0) {

@@ -135,6 +135,7 @@ set(PROGRAMS
   #query_vpic_exyz_nopreload
   #query_vpic_exyz_preload
   query_data
+  producer_waitall
   )
 
 # TODO: Check if import_vpic.c is needed. If yes, we have to add the following :
@@ -209,6 +210,7 @@ set(SCRIPTS
   run_test.sh
   mpi_test.sh
   run_multiple_test.sh
+  run_multiple_mpi_test.sh
   run_checkpoint_restart_test.sh
   )
 
@@ -490,6 +492,7 @@ if(BUILD_MPI_TESTING)
     add_test(NAME obj_info_mpi   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND mpi_test.sh ./obj_info ${MPI_RUN_CMD} 4 6 )
     add_test(NAME obj_put_data_mpi   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND mpi_test.sh ./obj_put_data ${MPI_RUN_CMD} 4 6 )
     add_test(NAME obj_get_data_mpi   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND mpi_test.sh ./obj_get_data ${MPI_RUN_CMD} 4 6 )
+    add_test(NAME vpicio_bdcats_mpi WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND run_multiple_mpi_test.sh ${MPI_RUN_CMD} 4 6 ./vpicio ./bdcats)
 
     set_tests_properties(read_obj_shared_int                  PROPERTIES LABELS "parallel;parallel_obj;s3" )
     set_tests_properties(read_obj_shared_float                PROPERTIES LABELS "parallel;parallel_obj;s3" )
@@ -517,6 +520,7 @@ if(BUILD_MPI_TESTING)
 #   set_tests_properties(region_transfer_2D_skewed_mpi        PROPERTIES LABELS "parallel;parallel_region_transfer" )
 #   set_tests_properties(region_transfer_3D_skewed_mpi        PROPERTIES LABELS "parallel;parallel_region_transfer" )
     set_tests_properties(region_transfer_write_read_mpi       PROPERTIES LABELS "parallel;parallel_region_transfer" )
+    set_tests_properties(vpicio_bdcats_mpi                    PROPERTIES LABELS "parallel;parallel_region_transfer" )
     set_tests_properties(region_transfer_all_mpi              PROPERTIES LABELS "parallel;parallel_region_transfer_all" )
     set_tests_properties(region_transfer_all_2D_mpi           PROPERTIES LABELS "parallel;parallel_region_transfer_all" )
     set_tests_properties(region_transfer_all_3D_mpi           PROPERTIES LABELS "parallel;parallel_region_transfer_all" )

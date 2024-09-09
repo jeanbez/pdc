@@ -1,5 +1,6 @@
 #include "pdc_client_server_common.h"
 #include "pdc_server_data.h"
+#include "pdc_timing.h"
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
 #include "../pdc_e2o/aws/pdc_backend_s3.h"
@@ -8,18 +9,6 @@
 #include "../pdc_e2o/posix/pdc_backend_posix.h"
 
 static int io_by_region_g = 1;
-
-int
-get_server_rank()
-{
-#ifdef ENABLE_MPI
-    int result;
-    MPI_Comm_rank(MPI_COMM_WORLD, &result);
-    return result;
-#else
-    return 0;
-#endif
-}
 
 int
 try_reset_dims()
@@ -99,6 +88,7 @@ PDC_finish_request(uint64_t transfer_request_id)
     perr_t                          ret_value = SUCCEED;
     transfer_request_wait_out_t     out;
     transfer_request_wait_all_out_t out_all;
+    char                            cur_time[64];
 
     FUNC_ENTER(NULL);
 
@@ -115,10 +105,20 @@ PDC_finish_request(uint64_t transfer_request_id)
                         printf("PDC SERVER PDC_finish_request out type unset error %d\n", __LINE__);
                     }
                     if (ptr->out_type) {
+
+                        /* PDC_get_time_str(cur_time); */
+                        /* printf("%s ==PDC_SERVER[%d]: enter %s, out_all ret\n", cur_time, PDC_get_rank(),
+                         * __func__); */
+
                         out_all.ret = 1;
                         ret_value   = HG_Respond(ptr->handle, NULL, NULL, &out_all);
                     }
                     else {
+
+                        /* PDC_get_time_str(cur_time); */
+                        /* printf("%s ==PDC_SERVER[%d]: enter %s, out ret\n", cur_time, PDC_get_rank(),
+                         * __func__); */
+
                         out.ret   = 1;
                         ret_value = HG_Respond(ptr->handle, NULL, NULL, &out);
                     }
@@ -284,10 +284,12 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     char     storage_location[ADDR_MAX];
     ssize_t  io_size;
     uint64_t i, j;
-
-    int server_rank = get_server_rank();
+    char     cur_time[64];
 
     FUNC_ENTER(NULL);
+
+    /* PDC_get_time_str(cur_time); */
+    /* printf("%s ==PDC_SERVER[%d]: enter %s\n", cur_time, PDC_get_rank(), __func__); */
 
     if (io_by_region_g || obj_ndim == 0) {
         // PDC_Server_register_obj_region(obj_id);
@@ -317,7 +319,7 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     }
     // Data path prefix will be $SCRATCH/pdc_data/$obj_id/
     snprintf(storage_location, ADDR_MAX, "%.200s/pdc_data/%" PRIu64 "/server%d/s%04d.bin", data_path, obj_id,
-             server_rank, server_rank);
+             PDC_get_rank(), PDC_get_rank());
 #ifdef PDC_HAS_S3_CHECKPOINT
     PDC_mkdir(storage_location);
     // printf("---> REGION -> PDC_Server_transfer_request_io -> storage_location = %s\n", storage_location);
@@ -447,6 +449,9 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
     close(fd);
 
 done:
+    /* PDC_get_time_str(cur_time); */
+    /* printf("%s ==PDC_SERVER[%d]: leave %s\n", cur_time, PDC_get_rank(), __func__); */
+
     fflush(stdout);
     FUNC_LEAVE(ret_value);
 }
