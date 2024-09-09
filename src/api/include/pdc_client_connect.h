@@ -227,6 +227,7 @@ int PDC_Client_get_var_type_size(pdc_var_type_t dtype);
 
 perr_t PDC_Client_transfer_request_all(int n_objs, pdc_access_t access_type, uint32_t data_server_id,
                                        char *bulk_buf, hg_size_t bulk_size, uint64_t *metadata_id,
+                                       uint8_t backend,
 #ifdef ENABLE_MPI
                                        MPI_Comm comm);
 #else
