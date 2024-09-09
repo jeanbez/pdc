@@ -682,8 +682,8 @@ client_send_transfer_request_all_rpc_cb(const struct hg_cb_info *callback_info)
         goto done;
     }
 
-    region_transfer_args->ret         = output.ret;
-    //fprintf(stdout, "region_transfer_args->ret = %d\n", region_transfer_args->ret);
+    region_transfer_args->ret = output.ret;
+    // fprintf(stdout, "region_transfer_args->ret = %d\n", region_transfer_args->ret);
     region_transfer_args->metadata_id = output.metadata_id;
 
     /* // Tang */

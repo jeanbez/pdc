@@ -664,7 +664,7 @@ HG_TEST_RPC_CB(transfer_request_all, handle)
     else {
         // Read operation has to receive region metadata first. There will be another bulk transfer triggered
         // in the callback.
-//fprintf(stderr, "transfer_request_all in.backend = %d\n", local_bulk_args->in.backend);
+        // fprintf(stderr, "transfer_request_all in.backend = %d\n", local_bulk_args->in.backend);
         ret_value = HG_Bulk_create(info->hg_class, 1, &(local_bulk_args->data_buf),
                                    &(local_bulk_args->in.total_buf_size), HG_BULK_READWRITE,
                                    &(local_bulk_args->bulk_handle));

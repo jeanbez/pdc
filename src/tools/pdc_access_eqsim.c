@@ -314,20 +314,19 @@ main(int argc, char **argv)
 #endif
 
         /* if (rank == 0) { */
-        /*     data_max = -1; */
-        /*     data_min = 1; */
-        /*     for (i = 0; i < pdc_local_size[0]; i++) { */
-        /*         if (rec_data[i] > data_max) */
-        /*             data_max = rec_data[i]; */
-        /*         else if (rec_data[i] < data_min) */
-        /*             data_min = rec_data[i]; */
-        /*     } */
-        /*     fprintf(stderr, "Round %d: rank %d single series min/max: %lf, %lf\n", r, rank, data_min,
-         * data_max); */
-        /* } */
+    /*     data_max = -1; */
+    /*     data_min = 1; */
+    /*     for (i = 0; i < pdc_local_size[0]; i++) { */
+    /*         if (rec_data[i] > data_max) */
+    /*             data_max = rec_data[i]; */
+    /*         else if (rec_data[i] < data_min) */
+    /*             data_min = rec_data[i]; */
+    /*     } */
+    /*     fprintf(stderr, "Round %d: rank %d single series min/max: %lf, %lf\n", r, rank, data_min,
+     * data_max); */
+    /* } */
 
     //} // End for round
-    
 
     PDCregion_close(remote_reg);
     PDCregion_close(local_reg);
