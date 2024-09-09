@@ -188,7 +188,7 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
     // printf("entering transfer_request_all_bulk_transfer_write_cb\n");
     remote_reg_info          = (struct pdc_region_info *)malloc(sizeof(struct pdc_region_info));
     remote_reg_info->backend = local_bulk_args->in.backend;
-    // printf("---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
+    // fprintf(stderr, "---> remote_reg_info->backend = %d\n", remote_reg_info->backend);
     request_data.n_objs = local_bulk_args->in.n_objs;
     parse_bulk_data(local_bulk_args->data_buf, &request_data, PDC_WRITE);
     // print_bulk_data(&request_data);
@@ -604,6 +604,7 @@ HG_TEST_RPC_CB(transfer_request_all, handle)
     else {
         // Read operation has to receive region metadata first. There will be another bulk transfer triggered
         // in the callback.
+//fprintf(stderr, "transfer_request_all in.backend = %d\n", local_bulk_args->in.backend);
         ret_value = HG_Bulk_create(info->hg_class, 1, &(local_bulk_args->data_buf),
                                    &(local_bulk_args->in.total_buf_size), HG_BULK_READWRITE,
                                    &(local_bulk_args->bulk_handle));

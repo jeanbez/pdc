@@ -1003,6 +1003,7 @@ PDC_region_fetch(uint64_t obj_id, int obj_ndim, const uint64_t *obj_dims, struct
         if (obj_cache != NULL) {
             PDC_region_cache_flush_by_pointer(obj_id, obj_cache);
         }
+        // printf("needs PDC_Server_transfer_request_io\n");
         PDC_Server_transfer_request_io(obj_id, obj_ndim, obj_dims, region_info, buf, unit, 0);
     }
     return 0;

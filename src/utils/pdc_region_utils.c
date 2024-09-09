@@ -24,7 +24,7 @@ PDC_region_overlap_detect(int ndim, uint64_t *offset1, uint64_t *size1, uint64_t
     if (!check_overlap(ndim, offset1, size1, offset2, size2)) {
         *output_offset = NULL;
         *output_size   = NULL;
-        // printf("PDC_region_overlap_detect @ line %d, overlap detect failed\n", __LINE__);
+         printf("PDC_region_overlap_detect @ line %d, overlap detect failed\n", __LINE__);
         goto done;
     }
     // Overlapping exist.

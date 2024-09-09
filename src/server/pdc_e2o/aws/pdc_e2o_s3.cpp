@@ -516,6 +516,7 @@ PDC_Server_aws_init(pdc_aws_config config)
     std::cout << "==AWS-S3[" << aws_s3_config.pdc_server_id << "] Initializing..." << std::endl;
 
     options.loggingOptions.logLevel             = Aws::Utils::Logging::LogLevel::Error;
+    options.httpOptions.installSigPipeHandler = true;
     options.loggingOptions.crt_logger_create_fn = []() {
         return Aws::MakeShared<Aws::Utils::Logging::DefaultCRTLogSystem>(
             "CRTLogSystem", Aws::Utils::Logging::LogLevel::Error);

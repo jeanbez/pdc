@@ -1140,7 +1140,7 @@ finish_start_all_requests(pdc_transfer_request_start_all_pkg **write_transfer_re
 static perr_t
 PDC_Client_pack_all_requests(int n_objs, pdc_transfer_request_start_all_pkg **transfer_requests,
                              pdc_access_t access_type, char **bulk_buf_ptr, size_t *total_buf_size_ptr,
-                             char **read_bulk_buf)
+                             char **read_bulk_buf, uint8_t backend)
 {
     perr_t ret_value = SUCCEED;
     char * bulk_buf, *ptr, *ptr2;
@@ -1159,7 +1159,7 @@ PDC_Client_pack_all_requests(int n_objs, pdc_transfer_request_start_all_pkg **tr
      *     remote remote_ndim: sizeof(int)
      *     unit: sizeof(size_t)
      */
-    metadata_size = n_objs * (sizeof(pdcid_t) + sizeof(int) * 2 + sizeof(size_t));
+    metadata_size = n_objs * (sizeof(pdcid_t) + sizeof(int) * 2 + sizeof(size_t) + sizeof(uint8_t));
     // printf("checkpoint @ line %d\n", __LINE__);
     // Data size, including region offsets/length pairs and actual data for I/O.
     /*
@@ -1218,6 +1218,7 @@ PDC_Client_pack_all_requests(int n_objs, pdc_transfer_request_start_all_pkg **tr
         MEMCPY_INC(&(transfer_requests[i]->transfer_request->obj_ndim), sizeof(int));
         MEMCPY_INC(&(transfer_requests[i]->transfer_request->remote_region_ndim), sizeof(int));
         MEMCPY_INC(&unit, sizeof(size_t));
+        MEMCPY_INC(&backend, sizeof(uint8_t));
     }
 
     // printf("checkpoint @ line %d\n", __LINE__);
@@ -1272,7 +1273,7 @@ PDC_Client_start_all_requests(pdc_transfer_request_start_all_pkg **transfer_requ
             n_objs = i - index;
             PDC_Client_pack_all_requests(n_objs, transfer_requests + index,
                                          transfer_requests[index]->transfer_request->access_type, &bulk_buf,
-                                         &bulk_buf_size, read_bulk_buf + index);
+                                         &bulk_buf_size, read_bulk_buf + index, transfer_requests[index]->transfer_request->backend);
             bulk_buf_ref    = (int *)malloc(sizeof(int));
             bulk_buf_ref[0] = n_objs;
             // printf("checkpoint @ line %d, index = %d, dataserver_id = %d, n_objs = %d\n", __LINE__, index,
@@ -1307,7 +1308,8 @@ PDC_Client_start_all_requests(pdc_transfer_request_start_all_pkg **transfer_requ
         // printf("checkpoint @ line %d\n", __LINE__);
         PDC_Client_pack_all_requests(n_objs, transfer_requests + index,
                                      transfer_requests[index]->transfer_request->access_type, &bulk_buf,
-                                     &bulk_buf_size, read_bulk_buf + index);
+                                     &bulk_buf_size, read_bulk_buf + index,
+                                     transfer_requests[index]->transfer_request->backend);
         // printf("checkpoint @ line %d\n", __LINE__);
         bulk_buf_ref    = (int *)malloc(sizeof(int));
         bulk_buf_ref[0] = n_objs;

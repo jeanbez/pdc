@@ -12,6 +12,7 @@ PDC_Server_posix_write(int fd, void *buf, uint64_t write_size)
 
     while (write_size > max_write_size) {
         ret = write(fd, buf, max_write_size);
+
         if (ret < 0 || ret != (ssize_t)max_write_size) {
             printf("==PDC_SERVER[%d]: in-loop: write %d failed, ret = %ld, max_write_size = %llu\n",
                    pdc_server_rank_g, fd, ret, max_write_size);

@@ -64,8 +64,8 @@ main(int argc, char **argv)
 
     // map some region in the middle instead of the border where we have only zeroes
     offset[0] = 0;
-    offset[1] = 10000; // chunk_size[1] * start_x[rank];
-    offset[2] = 10000; // chunk_size[2] * start_y[rank];
+    offset[1] = chunk_size[1] * start_x[rank]; // 10000
+    offset[2] = chunk_size[2] * start_y[rank]; // 10000
     offset[3] = 0;
 
     /* size[0] = chunk_size[0]; */

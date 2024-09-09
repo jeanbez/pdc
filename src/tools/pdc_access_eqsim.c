@@ -47,7 +47,7 @@ main(int argc, char **argv)
 
     pdc = PDCinit("pdc");
 
-    obj = PDCobj_open_col("run1", pdc);
+    obj = PDCobj_open("run1", pdc);
     if (obj <= 0)
         fprintf(stderr, "Fail to open object @ line  %d!\n", __LINE__);
 
@@ -160,6 +160,7 @@ main(int argc, char **argv)
 
     //=============PATTERN 3===============
     // Generating movie: all rank downsample in space to 156.25x156.25m (downsample factor 25)
+    /*
     ssi_downsample      = 25;
     pdc_local_offset[0] = 0;
     pdc_local_offset[1] = 0;
@@ -215,10 +216,11 @@ main(int argc, char **argv)
 
     PDCregion_close(local_reg);
     free(ssi_data);
+    */
 
     //=============PATTERN 4===============
     // Building response: all rank downsample in space to every 1250m (downsample factor 200)
-    rec_downsample      = 200;
+    /*rec_downsample      = 200;
     pdc_local_offset[0] = 0;
     pdc_local_offset[1] = 0;
     pdc_local_offset[2] = 0;
@@ -272,9 +274,10 @@ main(int argc, char **argv)
     } // End for round
 
     PDCregion_close(local_reg);
-
+    */
     //=============PATTERN 5===============
     // Single rank singele time history access
+    /*
     pdc_offset[0] = 0;
     pdc_offset[1] = chunk_size[1] / 2 + start_x[rank] * chunk_size[1];
     pdc_offset[2] = chunk_size[2] / 2 + start_y[rank] * chunk_size[2];
@@ -323,7 +326,8 @@ main(int argc, char **argv)
          * data_max); */
         /* } */
 
-    } // End for round
+    //} // End for round
+    
 
     PDCregion_close(remote_reg);
     PDCregion_close(local_reg);

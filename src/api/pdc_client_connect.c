@@ -562,6 +562,7 @@ client_send_transfer_request_all_rpc_cb(const struct hg_cb_info *callback_info)
     }
 
     region_transfer_args->ret         = output.ret;
+    //fprintf(stdout, "region_transfer_args->ret = %d\n", region_transfer_args->ret);
     region_transfer_args->metadata_id = output.metadata_id;
 done:
     fflush(stdout);
@@ -3060,6 +3061,8 @@ PDC_Client_transfer_request_all(int n_objs, pdc_access_t access_type, uint32_t d
     in.backend        = backend;
     // Compute metadata server id
     // meta_server_id    = PDC_get_server_by_obj_id(obj_id[0], pdc_server_num_g);
+
+    // printf("in.backend = %d\n", in.backend);
 
     debug_server_id_count[data_server_id]++;
 
