@@ -29,9 +29,15 @@ jobs:
       - name: Test PDC
         working-directory: build
         run: |
-          export PDC_CONFIGURATION=$(realpath ../.github/workflows/pdc.json)
+          export PDC_CONFIGURATION=../.github/workflows/pdc.json
+
+          echo "PDC_CONFIGURATION = $PDC_CONFIGURATION"
 
           ctest -L serial
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
 
       - name: Upload artifact
         if: always()
