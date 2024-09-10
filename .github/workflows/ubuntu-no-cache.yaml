@@ -28,4 +28,7 @@ jobs:
 
       - name: Test PDC
         working-directory: build
-        run: ctest -L serial
+        run:  |
+          export PDC_CONFIGURATION=$(realpath ../.github/workflows/pdc.json)
+
+          ctest -L serial

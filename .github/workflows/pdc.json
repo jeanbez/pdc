@@ -1,0 +1,34 @@
+{
+    "server": {
+        "debug": false,
+        "threads": 1,
+        "checkpoint": {
+            "enabled": true,
+            "path": "/tmp"
+        },
+        "caching": {
+            "size": 67108864,
+            "frequency": 1
+        }
+    },
+    "communication": {
+        "transport": "sockets",
+        "cray_drc": 0
+    },
+    "optimization": {
+        "data_sieving": false,
+        "ondemand_lookup": true,
+        "build_histogram": false,
+        "build_fastbit_index": false,
+        "use_fastbit_index": false
+    },
+    "backend": {
+        "lustre": {
+            "path": "/tmp/pdc-data"
+        },
+        "burst-buffer": {
+            "write_percentage": 80
+        },
+        "default": "lustre"
+    }
+}

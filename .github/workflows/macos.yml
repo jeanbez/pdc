@@ -33,4 +33,6 @@ jobs:
           sudo sh -c 'echo "`ipconfig getifaddr en0` PDC" >> /etc/hosts'
           sudo scutil --set HostName PDC
           export HG_TRANSPORT="sockets"
+          export PDC_CONFIGURATION=$(realpath ../.github/workflows/pdc.json)
+
           ctest -L serial
