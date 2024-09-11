@@ -32,7 +32,22 @@ jobs:
         run: |
           sudo sh -c 'echo "`ipconfig getifaddr en0` PDC" >> /etc/hosts'
           sudo scutil --set HostName PDC
+
           export HG_TRANSPORT="sockets"
-          export PDC_CONFIGURATION=$(realpath ../.github/workflows/pdc.json)
+          export PDC_CONFIGURATION=$(realpath ../.github/workflows)
+
+          echo "PDC_CONFIGURATION = $PDC_CONFIGURATION"
 
           ctest -L serial
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: build
+          retention-days: 1
