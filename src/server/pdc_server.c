@@ -1041,8 +1041,8 @@ drc_access_again:
     // Initialize DART
     PDC_Server_dart_init();
 
-    cJSON *json_backend           = NULL;
-    cJSON *json_backend_default   = NULL;
+    cJSON *json_backend         = NULL;
+    cJSON *json_backend_default = NULL;
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     cJSON *json_backend_s3        = NULL;

@@ -5014,7 +5014,8 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
         start_posix = MPI_Wtime();
 #endif
-        // printf("write_size = %lld request_region->offset = %lld (before)\n", write_size, request_region->offset);
+        // printf("write_size = %lld request_region->offset = %lld (before)\n", write_size,
+        // request_region->offset);
         request_region->offset = PDC_Server_size(region_info->backend, region->fd, region->storage_location);
         // printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
         // printf("[9] PDC_Server_write\n");
