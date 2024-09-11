@@ -4,7 +4,7 @@
         "threads": 1,
         "checkpoint": {
             "enabled": true,
-            "path": "/tmp"
+            "path": "/tmp/checkpoint"
         },
         "caching": {
             "size": 67108864,
@@ -29,6 +29,6 @@
         "burst-buffer": {
             "write_percentage": 80
         },
-        "default": "lustre"
+        "default": "posix"
     }
 }

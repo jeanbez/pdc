@@ -297,7 +297,6 @@ PDC_Server_transfer_request_io(uint64_t obj_id, int obj_ndim, const uint64_t *ob
             PDC_Server_data_write_out(obj_id, region_info, buf, unit);
         }
         else {
-            // printf("PDC_Server_data_read_from....\n");
             PDC_Server_data_read_from(obj_id, region_info, buf, unit);
         }
         // PDC_Server_unregister_obj_region(obj_id);

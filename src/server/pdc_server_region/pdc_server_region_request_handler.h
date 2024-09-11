@@ -221,7 +221,6 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
         remote_reg_info->ndim   = request_data.remote_ndim[i];
         remote_reg_info->offset = request_data.remote_offset[i];
         remote_reg_info->size   = request_data.remote_length[i];
-
 #ifdef PDC_SERVER_CACHE
         PDC_transfer_request_data_write_out(request_data.obj_id[i], request_data.obj_ndim[i],
                                             request_data.obj_dims[i], remote_reg_info,

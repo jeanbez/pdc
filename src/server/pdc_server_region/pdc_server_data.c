@@ -4773,7 +4773,7 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 
                 // printf("POSIX write from file offset %lu, region start = %lu, region size = %lu\n",
                 // overlap_region->offset, overlap_region->start[0], overlap_region->count[0]);
-                // printf("[1] PDC_Server_write\n");
+                // // printf("[1] PDC_Server_write\n");
                 ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location,
                                              buf + (overlap_offset[0] - region_info->offset[0]) * unit,
                                              region_size, region_offset, SEEK_SET);
@@ -5014,10 +5014,8 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
 #ifdef PDC_TIMING
         start_posix = MPI_Wtime();
 #endif
-
-#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
+        // printf("write_size = %lld request_region->offset = %lld (before)\n", write_size, request_region->offset);
         request_region->offset = PDC_Server_size(region_info->backend, region->fd, region->storage_location);
-#endif
         // printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
         // printf("[9] PDC_Server_write\n");
         ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location, buf,

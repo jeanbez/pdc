@@ -39,7 +39,7 @@
 #define PDC_MAX_OVERLAP_REGION_NUM 8 // max number of regions for PDC_Server_get_storage_location_of_region()
 #define PDC_BULK_XFER_INIT_NALLOC  128
 
-#define PDC_AWS_S3_DEFAULT_BUCKET "pdc-test-11022023"
+#define PDC_AWS_S3_DEFAULT_BUCKET "s3-pdc"
 
 int data_sieving_g;
 /***************************/

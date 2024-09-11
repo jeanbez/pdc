@@ -19,7 +19,7 @@ all_test="${@:4}"
 test_args=""
 echo $all_test
 
-rm -rf pdc_tmp pdc_data
+rm -rf pdc_tmp pdc_data ${PDC_TMPDIR} ${PDC_DATA_LOC}
 
 # START the server (in the background)
 echo "$mpi_cmd -n $n_servers $extra_cmd ./pdc_server.exe &"
@@ -47,6 +47,6 @@ done
 ret="$?"
 # and shutdown the SERVER before exiting
 echo "Close server"
-echo "$mpi_cmd -n 1 $extra_cmd ./close_server"
-$mpi_cmd -n 1 $extra_cmd ./close_server
+echo "$mpi_cmd -n $n_servers $extra_cmd ./close_server"
+$mpi_cmd -n $n_servers $extra_cmd ./close_server
 exit $ret

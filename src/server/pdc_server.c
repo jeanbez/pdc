@@ -101,7 +101,6 @@ char **                   all_addr_strings_g       = NULL;
 int                       is_hash_table_init_g     = 0;
 int                       lustre_stripe_size_mb_g  = 16;
 int                       lustre_total_ost_g       = 0;
-int                       pdc_disable_checkpoint_g = 0;
 
 hg_id_t get_remote_metadata_register_id_g;
 hg_id_t buf_map_server_register_id_g;
@@ -725,9 +724,15 @@ PDC_Server_set_close(void)
 #ifdef PDC_TIMING
         start = MPI_Wtime();
 #endif
-        if (pdc_disable_checkpoint_g == 0)
+        char *tmp_env_char = getenv("PDC_DISABLE_CHECKPOINT");
+        if (tmp_env_char != NULL && strcmp(tmp_env_char, "TRUE") == 0) {
+            if (pdc_server_rank_g == 0) {
+                printf("==PDC_SERVER[0]: checkpoint disabled!\n");
+            }
+        }
+        else {
             PDC_Server_checkpoint();
-
+        }
 #ifdef PDC_TIMING
         pdc_server_timings->PDCserver_checkpoint += MPI_Wtime() - start;
 #endif
@@ -1036,15 +1041,17 @@ drc_access_again:
     // Initialize DART
     PDC_Server_dart_init();
 
-#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     cJSON *json_backend           = NULL;
     cJSON *json_backend_default   = NULL;
+
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     cJSON *json_backend_s3        = NULL;
     cJSON *json_backend_s3_config = NULL;
 
     pdc_aws_config aws_s3_config;
 
     aws_s3_config.use_crt = false;
+#endif
 
     // Parse the configuration
     json_backend = cJSON_GetObjectItemCaseSensitive(json_configuration, "backend");
@@ -1058,11 +1065,14 @@ drc_access_again:
             default_backend_g = PDC_BACKEND_POSIX;
         }
 
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
         if (strcmp(json_backend_default->valuestring, "s3") == 0) {
             default_backend_g = PDC_BACKEND_S3;
         }
+#endif
     }
 
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     json_backend_s3 = cJSON_GetObjectItemCaseSensitive(json_backend, "s3");
 
     json_backend_s3_config = cJSON_GetObjectItemCaseSensitive(json_backend_s3, "key");
@@ -1373,8 +1383,7 @@ PDC_Server_recv_shm_cb(const struct hg_cb_info *callback_info)
 hg_return_t
 PDC_Server_checkpoint_cb()
 {
-    if (pdc_disable_checkpoint_g == 0)
-        PDC_Server_checkpoint();
+    PDC_Server_checkpoint();
 
     return HG_SUCCESS;
 }
@@ -2042,7 +2051,7 @@ PDC_Server_loop(hg_context_t *hg_context)
 #ifdef PDC_ENABLE_CHECKPOINT
         checkpoint_interval++;
         // Avoid calling clock() every operation
-        if (pdc_disable_checkpoint_g == 0 && checkpoint_interval % PDC_CHECKPOINT_CHK_OP_INTERVAL == 0) {
+        if (checkpoint_interval % PDC_CHECKPOINT_CHK_OP_INTERVAL == 0) {
             cur_time            = clock();
             double elapsed_time = ((double)(cur_time - last_checkpoint_time)) / CLOCKS_PER_SEC;
             /* fprintf(stderr, "PDC_SERVER: loop elapsed time %.2f\n", elapsed_time); */
@@ -2063,7 +2072,7 @@ PDC_Server_loop(hg_context_t *hg_context)
         /* Do not try to make progress anymore if we're done */
         if (hg_atomic_cas32(&close_server_g, 1, 1))
             break;
-        hg_ret = HG_Progress(hg_context, 1000);
+        hg_ret = HG_Progress(hg_context, 200);
 
     } while (hg_ret == HG_SUCCESS || hg_ret == HG_TIMEOUT);
 
@@ -2362,13 +2371,6 @@ PDC_Server_get_env()
         use_sqlite3_g = 1;
         if (pdc_server_rank_g == 0)
             printf("==PDC_SERVER[%d]: using SQLite3 for kvtag\n", pdc_server_rank_g);
-    }
-
-    tmp_env_char = getenv("PDC_DISABLE_CHECKPOINT");
-    if (tmp_env_char != NULL && strcmp(tmp_env_char, "TRUE") == 0) {
-        pdc_disable_checkpoint_g = 1;
-        if (pdc_server_rank_g == 0)
-            printf("==PDC_SERVER[0]: checkpoint disabled!\n");
     }
 
     if (pdc_server_rank_g == 0) {
