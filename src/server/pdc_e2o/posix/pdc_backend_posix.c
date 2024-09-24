@@ -41,7 +41,7 @@ PDC_Server_posix_read(int fd, void *buf, uint64_t read_size, uint64_t offset)
 {
     perr_t ret_value = SUCCEED;
 
-    int ret = pread(fd, buf, read_size, offset);
+    ssize_t ret = pread(fd, buf, read_size, offset);
 
     if (ret < 0 || ret != (ssize_t)read_size) {
         printf("==PDC_SERVER[%d]: read %d failed, not all data read %llu/%llu\n", pdc_server_rank_g, fd, ret,
