@@ -1127,7 +1127,8 @@ drc_access_again:
 
     if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
         aws_s3_config.max_connections = json_backend_s3_config->valueint;
-    } else {
+    }
+    else {
         aws_s3_config.max_connections = 8;
     }
 
@@ -1135,7 +1136,8 @@ drc_access_again:
 
     if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
         aws_s3_config.part_size = json_backend_s3_config->valueint;
-    } else {
+    }
+    else {
         aws_s3_config.part_size = 1024 * 1024;
     }
 
@@ -1143,7 +1145,8 @@ drc_access_again:
 
     if (cJSON_IsNumber(json_backend_s3_config) && (json_backend_s3_config->valueint > 0)) {
         aws_s3_config.throughput_target = json_backend_s3_config->valueint;
-    } else {
+    }
+    else {
         aws_s3_config.part_size = 20;
     }
 
