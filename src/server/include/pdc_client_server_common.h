@@ -87,8 +87,8 @@ extern struct timeval last_cache_activity_timeval_g;
 #define ADD_OBJ 1
 #define DEL_OBJ 2
 
-//#define S3_SEEK_END 1
-//#define S3_SEEK_SET 0
+#define S3_SEEK_END SEEK_END
+#define S3_SEEK_SET SEEK_SET
 
 cJSON *json_configuration;
 
