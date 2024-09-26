@@ -489,6 +489,14 @@ if(PDC_ENABLE_SQLITE3)
     set(ENABLE_SQLITE3 1)
 endif()
 
+#-----------------------------------------------------------------------------
+# ZFP option
+#-----------------------------------------------------------------------------
+option(PDC_ENABLE_ZFP "Enable ZFP." OFF)
+if(PDC_ENABLE_ZFP)
+    set(ENABLE_ZFP 1)
+endif()
+
 # Check availability of symbols
 #-----------------------------------------------------------------------------
 check_symbol_exists(malloc_usable_size "malloc.h" HAVE_MALLOC_USABLE_SIZE)
@@ -528,14 +536,6 @@ option(PDC_ENABLE_SQLITE3 "Enable SQLite3 (experimental)." OFF)
 if(PDC_ENABLE_SQLITE3)
     set(ENABLE_SQLITE3 1)
 endif()
-
-# Check availability of symbols
-#-----------------------------------------------------------------------------
-check_symbol_exists(malloc_usable_size "malloc.h" HAVE_MALLOC_USABLE_SIZE)
-if(HAVE_MALLOC_USABLE_SIZE)
-  add_definitions(-DHAVE_MALLOC_USABLE_SIZE)
-endif()
-
 #------------------------------------------------------------------------------
 # Data type
 #------------------------------------------------------------------------------

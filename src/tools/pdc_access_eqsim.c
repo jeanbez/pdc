@@ -47,7 +47,7 @@ main(int argc, char **argv)
 
     pdc = PDCinit("pdc");
 
-    obj = PDCobj_open("run1", pdc);
+    obj = PDCobj_open_col("run1", pdc);
     if (obj <= 0)
         fprintf(stderr, "Fail to open object @ line  %d!\n", __LINE__);
 
