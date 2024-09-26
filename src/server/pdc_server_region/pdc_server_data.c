@@ -4740,7 +4740,6 @@ _setup_zfp(struct pdc_region_info *region_info, zfp_stream **zfp)
 
 // No PDC_SERVER_CACHE
 
-
 perr_t
 PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, void *buf, size_t unit)
 {
@@ -5075,7 +5074,7 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
         request_region->offset = PDC_Server_size(region_info->backend, region->fd, region->storage_location);
         // printf("write_size = %lld request_region->offset = %lld\n", write_size, request_region->offset);
         // printf("[9] PDC_Server_write\n");
-		
+
 #ifdef ENABLE_ZFP
         zfp_field * field;
         zfp_stream *zfp;
@@ -5109,7 +5108,7 @@ PDC_Server_data_write_out(uint64_t obj_id, struct pdc_region_info *region_info, 
         zfp_stream_close(zfp);
         stream_close(stream);
 #endif
-		
+
         ret_value = PDC_Server_write(region_info->backend, region->fd, region->storage_location, buf,
                                      write_size, request_region->offset,
                                      (region_info->backend == PDC_BACKEND_S3) ? SEEK_END : SEEK_SET);
