@@ -1012,6 +1012,7 @@ drc_access_again:
             printf("==PDC_SERVER[%d]: error with PDC_Server_restart\n", pdc_server_rank_g);
             goto done;
         }
+        metadata_index_recover(pdc_server_tmp_dir_g, pdc_server_size_g, pdc_server_rank_g);
     }
     else {
         // We are starting a brand new server
@@ -1633,6 +1634,8 @@ PDC_Server_checkpoint()
                all_region_count);
         fflush(stdout);
     }
+
+    metadata_index_dump(pdc_server_tmp_dir_g, pdc_server_rank_g);
 
 done:
     fflush(stdout);
