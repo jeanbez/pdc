@@ -97,7 +97,6 @@ set(PROGRAMS
  kvtag_add_get
 #  kvtag_get
  kvtag_query
- kvtag_query_scale
 #  obj_transformation
   region_transfer_query
   region_transfer
