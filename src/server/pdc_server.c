@@ -1038,9 +1038,9 @@ drc_access_again:
 
     n_metadata_g = 0;
     // Initialize IDIOMS
-	PDC_Server_metadata_index_init(pdc_server_size_g, pdc_server_rank_g);
-	
-	cJSON *json_backend         = NULL;
+    PDC_Server_metadata_index_init(pdc_server_size_g, pdc_server_rank_g);
+
+    cJSON *json_backend         = NULL;
     cJSON *json_backend_default = NULL;
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
