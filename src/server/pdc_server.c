@@ -1001,47 +1001,6 @@ drc_access_again:
         printf("==PDC_SERVER[%d]: Read cache enabled!\n", pdc_server_rank_g);
 #endif
 
-    // Initialize IDIOMS
-    PDC_Server_metadata_index_init(pdc_server_size_g, pdc_server_rank_g);
-
-    // TODO: support restart with different number of servers than previous run
-    char checkpoint_file[ADDR_MAX + sizeof(int) + 1];
-    if (is_restart_g == 1) {
-        snprintf(checkpoint_file, ADDR_MAX, "%s/%d/metadata_checkpoint.%d", pdc_server_tmp_dir_g,
-                 pdc_server_rank_g, pdc_server_rank_g);
-
-        ret_value = PDC_Server_restart(checkpoint_file);
-        if (ret_value != SUCCEED) {
-            printf("==PDC_SERVER[%d]: error with PDC_Server_restart\n", pdc_server_rank_g);
-            goto done;
-        }
-        metadata_index_recover(pdc_server_tmp_dir_g, pdc_server_size_g, pdc_server_rank_g);
-    }
-    else {
-        // We are starting a brand new server
-        transfer_request_metadata_query_init(pdc_server_size_g, NULL);
-        if (is_hash_table_init_g != 1) {
-            // Hash table init
-            ret_value = PDC_Server_init_hash_table();
-            if (ret_value != SUCCEED) {
-                printf("==PDC_SERVER[%d]: error with PDC_Server_init_hash_table\n", pdc_server_rank_g);
-                goto done;
-            }
-        }
-    }
-
-    // Data server related init
-    pdc_data_server_read_list_head_g    = NULL;
-    pdc_data_server_write_list_head_g   = NULL;
-    pdc_update_storage_meta_list_head_g = NULL;
-    pdc_buffered_bulk_update_total_g    = 0;
-    pdc_nbuffered_bulk_update_g         = 0;
-
-    // Initalize atomic variable to finalize server
-    hg_atomic_set32(&close_server_g, 0);
-
-    n_metadata_g = 0;
-
     cJSON *json_backend         = NULL;
     cJSON *json_backend_default = NULL;
 
@@ -1165,6 +1124,47 @@ drc_access_again:
     aws_s3_config.pdc_server_id = pdc_server_rank_g;
 
     PDC_Server_aws_init(aws_s3_config);
+
+    // Initialize IDIOMS
+    PDC_Server_metadata_index_init(pdc_server_size_g, pdc_server_rank_g);
+
+    // TODO: support restart with different number of servers than previous run
+    char checkpoint_file[ADDR_MAX + sizeof(int) + 1];
+    if (is_restart_g == 1) {
+        snprintf(checkpoint_file, ADDR_MAX, "%s/%d/metadata_checkpoint.%d", pdc_server_tmp_dir_g,
+                 pdc_server_rank_g, pdc_server_rank_g);
+
+        ret_value = PDC_Server_restart(checkpoint_file);
+        if (ret_value != SUCCEED) {
+            printf("==PDC_SERVER[%d]: error with PDC_Server_restart\n", pdc_server_rank_g);
+            goto done;
+        }
+        metadata_index_recover(pdc_server_tmp_dir_g, pdc_server_size_g, pdc_server_rank_g);
+    }
+    else {
+        // We are starting a brand new server
+        transfer_request_metadata_query_init(pdc_server_size_g, NULL);
+        if (is_hash_table_init_g != 1) {
+            // Hash table init
+            ret_value = PDC_Server_init_hash_table();
+            if (ret_value != SUCCEED) {
+                printf("==PDC_SERVER[%d]: error with PDC_Server_init_hash_table\n", pdc_server_rank_g);
+                goto done;
+            }
+        }
+    }
+
+    // Data server related init
+    pdc_data_server_read_list_head_g    = NULL;
+    pdc_data_server_write_list_head_g   = NULL;
+    pdc_update_storage_meta_list_head_g = NULL;
+    pdc_buffered_bulk_update_total_g    = 0;
+    pdc_nbuffered_bulk_update_g         = 0;
+
+    // Initalize atomic variable to finalize server
+    hg_atomic_set32(&close_server_g, 0);
+
+    n_metadata_g = 0;
 #endif
 
     // PDC transfer_request infrastructures
