@@ -333,7 +333,7 @@ DownloadObject(char *objectKey)
         Aws::S3Crt::Model::GetObjectRequest request;
         request.SetBucket(aws_s3_config.bucket);
         request.SetKey(objectKey);
-        
+
         Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
 
         if (outcome.IsSuccess()) {
@@ -345,7 +345,8 @@ DownloadObject(char *objectKey)
                 outfile << result.GetBody().rdbuf();
                 outfile.close();
                 std::cout << "[AWS-S3] File downloaded successfully!" << std::endl;
-            } else {
+            }
+            else {
                 std::cerr << "[AWS-S3] Error downloading file!" << std::endl;
             }
             return true;
@@ -376,7 +377,8 @@ DownloadObject(char *objectKey)
                 outfile << result.GetBody().rdbuf();
                 outfile.close();
                 std::cout << "[AWS-S3] File downloaded successfully!" << std::endl;
-            } else {
+            }
+            else {
                 std::cerr << "[AWS-S3] Error downloading file!" << std::endl;
             }
             return true;

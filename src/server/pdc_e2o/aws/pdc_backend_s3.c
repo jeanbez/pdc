@@ -188,7 +188,8 @@ PDC_Server_S3_download(char *aws_s3_location)
         printf("==PDC_SERVER[%d]: download %s failed\n", pdc_server_rank_g, aws_s3_location);
         ret_value = FAIL;
         goto done;
-    } else {
+    }
+    else {
         printf("==PDC_SERVER[%d]: download %s succeeded\n", pdc_server_rank_g, aws_s3_location);
     }
 
