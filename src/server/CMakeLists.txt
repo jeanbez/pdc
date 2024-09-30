@@ -65,7 +65,6 @@ if(PDC_HAS_S3 OR PDC_HAS_S3_CHECKPOINT)
        pdc_client_server_common.c
        dablooms/pdc_dablooms.c
        dablooms/pdc_murmur.c
-       pdc_hash-table.c
        ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
        ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_backend_s3.c
        ${PDC_SOURCE_DIR}/src/server/pdc_e2o/aws/pdc_e2o_s3.cpp
@@ -88,7 +87,6 @@ else()
        pdc_client_server_common.c
        dablooms/pdc_dablooms.c
        dablooms/pdc_murmur.c
-       pdc_hash-table.c
        ${PDC_SOURCE_DIR}/src/server/pdc_e2o/posix/pdc_backend_posix.c
        ${PDC_SOURCE_DIR}/src/server/pdc_e2o/pdc_e2o.c   
        ${PDC_SOURCE_DIR}/src/server/pdc_server_analysis/pdc_server_analysis.c
