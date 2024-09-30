@@ -174,4 +174,26 @@ PDC_Server_S3_size(char *aws_s3_location)
     return GetSize(aws_s3_location);
 }
 
+int
+PDC_Server_S3_download(char *aws_s3_location)
+{
+    perr_t  ret_value = SUCCEED;
+    ssize_t ret;
+
+    FUNC_ENTER(NULL);
+
+    ret = DownloadObject(aws_s3_location);
+
+    if (!ret) {
+        printf("==PDC_SERVER[%d]: download %s failed\n", pdc_server_rank_g, aws_s3_location);
+        ret_value = FAIL;
+        goto done;
+    } else {
+        printf("==PDC_SERVER[%d]: download %s succeeded\n", pdc_server_rank_g, aws_s3_location);
+    }
+
+done:
+    FUNC_LEAVE(ret_value);
+}
+
 #endif

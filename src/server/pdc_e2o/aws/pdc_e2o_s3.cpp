@@ -324,6 +324,74 @@ GetObject(char *objectKey, void *buffer)
 }
 
 bool
+DownloadObject(char *objectKey)
+{
+    int64_t nbytes = 0;
+
+    if (aws_s3_config.use_crt) {
+
+        Aws::S3Crt::Model::GetObjectRequest request;
+        request.SetBucket(aws_s3_config.bucket);
+        request.SetKey(objectKey);
+        
+        Aws::S3Crt::Model::GetObjectOutcome outcome = aws_crt_client->GetObject(request);
+
+        if (outcome.IsSuccess()) {
+            auto &result = outcome.GetResult();
+
+            std::ofstream outfile(objectKey, std::ios::binary);
+
+            if (outfile.is_open()) {
+                outfile << result.GetBody().rdbuf();
+                outfile.close();
+                std::cout << "[AWS-S3] File downloaded successfully!" << std::endl;
+            } else {
+                std::cerr << "[AWS-S3] Error downloading file!" << std::endl;
+            }
+            return true;
+        }
+        else {
+            std::cerr << "[AWS-S3] GetObject error:\n"
+                      << outcome.GetError() << std::endl
+                      << outcome.GetError().GetExceptionName() << " - " << outcome.GetError().GetMessage()
+                      << std::endl
+                      << std::endl;
+
+            return false;
+        }
+    }
+    else {
+        Aws::S3::Model::GetObjectRequest request;
+        request.SetBucket(aws_s3_config.bucket);
+        request.SetKey(objectKey);
+
+        auto outcome = aws_client->GetObject(request);
+
+        if (outcome.IsSuccess()) {
+            auto &result = outcome.GetResult();
+
+            std::ofstream outfile(objectKey, std::ios::binary);
+
+            if (outfile.is_open()) {
+                outfile << result.GetBody().rdbuf();
+                outfile.close();
+                std::cout << "[AWS-S3] File downloaded successfully!" << std::endl;
+            } else {
+                std::cerr << "[AWS-S3] Error downloading file!" << std::endl;
+            }
+            return true;
+        }
+        else {
+            const Aws::S3::S3Error &err = outcome.GetError();
+            std::cerr << "[AWS-S3] Error: GetObject: " << err.GetExceptionName() << ": " << err.GetMessage()
+                      << std::endl;
+        }
+
+        return outcome.IsSuccess();
+    }
+}
+
+bool
 GetObjectRange(char *objectKey, void *buffer, uint64_t offset, uint64_t size)
 {
     int64_t nbytes = 0;

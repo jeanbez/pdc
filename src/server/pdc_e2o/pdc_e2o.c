@@ -66,3 +66,11 @@ PDC_Server_size(int backend, int fd, char *location)
 #endif
     return lseek(fd, 0, SEEK_END);
 }
+
+void
+PDC_Server_download(char *location)
+{
+#if defined(PDC_HAS_S3_CHECKPOINT)
+    PDC_Server_S3_download(location);
+#endif
+}

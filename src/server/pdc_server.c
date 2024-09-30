@@ -1686,6 +1686,11 @@ PDC_Server_restart(char *filename)
         goto done;
     }
 
+    // if S3 restart is enabled, download the file locally before handling it
+#if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
+    PDC_Server_download(filename);
+#endif
+
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         printf("==PDC_SERVER[%d]: %s -  Checkpoint file open FAILED [%s]!", pdc_server_rank_g, __func__,

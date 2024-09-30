@@ -36,6 +36,7 @@ uint64_t GetObjectBytes(char *objectKey, void *buffer);
 uint64_t GetSize(char *objectKey);
 bool     GetObjectRange(char *objectKey, void *buffer, uint64_t offset, uint64_t size);
 bool     DeleteObject(char *objectKey);
+bool     DownloadObject(char *objectKey);
 
 #ifdef __cplusplus
 } // extern "C"
