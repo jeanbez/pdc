@@ -1037,11 +1037,10 @@ drc_access_again:
     hg_atomic_set32(&close_server_g, 0);
 
     n_metadata_g = 0;
-
-    // Initialize DART
-    PDC_Server_dart_init();
-
-    cJSON *json_backend         = NULL;
+    // Initialize IDIOMS
+	PDC_Server_metadata_index_init(pdc_server_size_g, pdc_server_rank_g);
+	
+	cJSON *json_backend         = NULL;
     cJSON *json_backend_default = NULL;
 
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
@@ -1165,9 +1164,6 @@ drc_access_again:
 
     PDC_Server_aws_init(aws_s3_config);
 #endif
-
-    // Initialize DART
-    PDC_Server_dart_init();
 
     // PDC transfer_request infrastructures
     PDC_server_transfer_request_init();
