@@ -168,7 +168,7 @@ done:
     FUNC_LEAVE(ret_value);
 }
 
-int
+uint64_t
 PDC_Server_S3_size(char *aws_s3_location)
 {
     return GetSize(aws_s3_location);

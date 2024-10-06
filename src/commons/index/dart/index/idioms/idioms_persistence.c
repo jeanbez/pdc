@@ -486,9 +486,7 @@ idioms_metadata_index_recover(IDIOMS_t *idioms, char *dir_path, int num_server, 
 
     stopwatch_t timer;
     timer_start(&timer);
-
     load_dart_info(idioms->dart_info_g, dir_path, serverID);
-
     uint64_t *vid_array = NULL;
     size_t    num_vids  = get_vnode_ids_by_serverID(idioms->dart_info_g, serverID, &vid_array);
 

@@ -64,6 +64,7 @@ typedef struct pdc_transfer_request {
     // Determine unit size.
     pdc_var_type_t mem_type;
     size_t         unit;
+    uint8_t backend;
     // User data buffer
     char *buf;
     /* Used internally for 2D and 3D data */
@@ -109,8 +110,6 @@ typedef struct pdc_transfer_request {
     // Tang: for merging transfer requests with transfer start_all/wait_all
     pdcid_t merged_request_id;
     int     is_done;
-
-    uint8_t backend;
 } pdc_transfer_request;
 
 // We pack all arguments for a start_all call to the same data server in a single structure, so we do not need
@@ -223,6 +222,7 @@ PDCregion_transfer_create(void *buf, pdc_access_t access_type, pdcid_t obj_id, p
     p->local_obj_id     = obj_id;
     p->obj_id           = obj2->obj_info_pub->meta_id;
     p->access_type      = access_type;
+    p->backend          = 0;
     p->buf              = buf;
     p->metadata_id      = NULL;
     p->read_bulk_buf    = NULL;
@@ -239,7 +239,6 @@ PDCregion_transfer_create(void *buf, pdc_access_t access_type, pdcid_t obj_id, p
     p->merged_request_id  = 0;
     p->is_done            = 0;
     unit                  = p->unit;
-    p->backend            = 0;
     /*
         printf("creating a request from obj %s metadata id = %llu, access_type = %d\n",
        obj2->obj_info_pub->name, (long long unsigned)obj2->obj_info_pub->meta_id, access_type);
@@ -647,7 +646,7 @@ pack_region_metadata_query(pdc_transfer_request_start_all_pkg **transfer_request
         // ndim + Regions + obj_id + data_server id + data partition + unit
         total_buf_size += sizeof(int) +
                           sizeof(uint64_t) * 2 * transfer_request[i]->transfer_request->remote_region_ndim +
-                          sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(size_t);
+                          sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(size_t);
     }
 
     *buf_ptr = (char *)malloc(total_buf_size);
@@ -664,6 +663,8 @@ pack_region_metadata_query(pdc_transfer_request_start_all_pkg **transfer_request
         ptr += sizeof(int);
         memcpy(ptr, &(transfer_request[i]->transfer_request->unit), sizeof(size_t));
         ptr += sizeof(size_t);
+        memcpy(ptr, &(transfer_request[i]->transfer_request->backend), sizeof(uint8_t));
+        ptr += sizeof(uint8_t);
         memcpy(ptr, transfer_request[i]->remote_offset,
                sizeof(uint64_t) * transfer_request[i]->transfer_request->remote_region_ndim);
         ptr += sizeof(uint64_t) * transfer_request[i]->transfer_request->remote_region_ndim;
@@ -728,6 +729,7 @@ unpack_region_metadata_query(char *buf, pdc_transfer_request_start_all_pkg **tra
             local_request->obj_servers = (uint32_t *)malloc(sizeof(uint32_t) * local_request->n_obj_servers);
             // printf("unpack_region_metadata_query: checkpoint %d, local_request = %llu, index = %d\n",
             // __LINE__, (long long unsigned) local_request, index);
+            // printf("=====> local_request->backend = %d\n", local_request->backend);
             set_obj_server_bufs(local_request);
         }
         transfer_request_end->next             = NULL;
@@ -1182,6 +1184,7 @@ PDC_Client_pack_all_requests(int n_objs, pdc_transfer_request_start_all_pkg **tr
      *     obj_ndim: sizeof(int)
      *     remote remote_ndim: sizeof(int)
      *     unit: sizeof(size_t)
+     *     backend: sizeof(uint8_t)
      */
     metadata_size = n_objs * (sizeof(pdcid_t) + sizeof(int) * 2 + sizeof(size_t) + sizeof(uint8_t));
     // printf("checkpoint @ line %d\n", __LINE__);

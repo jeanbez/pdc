@@ -359,7 +359,7 @@ PDC_Server_write_addr_to_file(char **addr_strings, int n)
     FUNC_ENTER(NULL);
 
     // write to file
-    snprintf(config_fname, ADDR_MAX, "%s%s", pdc_server_tmp_dir_g, pdc_server_cfg_name_g);
+    snprintf(config_fname, ADDR_MAX, "%s/%s", pdc_server_tmp_dir_g, pdc_server_cfg_name_g);
     FILE *na_config = fopen(config_fname, "w+");
     if (!na_config) {
         fprintf(stderr, "Could not open config file from: %s\n", config_fname);
@@ -455,7 +455,7 @@ PDC_Server_rm_config_file()
 
     FUNC_ENTER(NULL);
 
-    snprintf(config_fname, ADDR_MAX, "%s%s", pdc_server_tmp_dir_g, pdc_server_cfg_name_g);
+    snprintf(config_fname, ADDR_MAX, "%s/%s", pdc_server_tmp_dir_g, pdc_server_cfg_name_g);
 
     if (remove(config_fname) != 0) {
         printf("==PDC_SERVER[%d]: Unable to delete the config file[%s]", pdc_server_rank_g, config_fname);
@@ -2296,7 +2296,7 @@ PDC_Server_get_env()
     if (tmp_env_char == NULL)
         tmp_env_char = "./pdc_tmp";
 
-    snprintf(pdc_server_tmp_dir_g, TMP_DIR_STRING_LEN, "%s/", tmp_env_char);
+    snprintf(pdc_server_tmp_dir_g, TMP_DIR_STRING_LEN, "%s", tmp_env_char);
 
     lustre_total_ost_g = 1;
 #ifdef ENABLE_LUSTRE

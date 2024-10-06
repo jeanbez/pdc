@@ -463,6 +463,7 @@ clean_write_bulk_data(transfer_request_all_data *request_data)
     free(request_data->remote_ndim);
     free(request_data->remote_offset);
     free(request_data->unit);
+    free(request_data->backend);
     free(request_data->data_buf);
     return 0;
 }
@@ -501,8 +502,8 @@ parse_bulk_data(void *buf, transfer_request_all_data *request_data, pdc_access_t
     request_data->remote_length = request_data->remote_offset + request_data->n_objs;
     request_data->obj_dims      = request_data->remote_length + request_data->n_objs;
     request_data->unit          = (size_t *)malloc(sizeof(size_t) * request_data->n_objs);
-    request_data->data_buf      = (char **)malloc(sizeof(char *) * request_data->n_objs);
     request_data->backend       = (uint8_t *)malloc(sizeof(uint8_t) * request_data->n_objs);
+    request_data->data_buf      = (char **)malloc(sizeof(char *) * request_data->n_objs);
 
     /*
      * The following times n_objs (one set per object).

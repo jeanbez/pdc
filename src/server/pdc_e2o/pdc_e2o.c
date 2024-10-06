@@ -6,7 +6,7 @@ int
 PDC_Server_write(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset, int seek)
 {
     perr_t ret_value = SUCCEED;
-
+    // printf("W | backend = %d, location = %s, size = %ld, offset = %ld\n", backend, location, size, offset);
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
@@ -31,7 +31,7 @@ int
 PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset)
 {
     perr_t ret_value = SUCCEED;
-
+    // printf("R | backend = %d, location = %s, size = %ld, offset = %ld\n", backend, location, size, offset);
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {
@@ -55,9 +55,10 @@ PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, u
     return ret_value;
 }
 
-int
+uint64_t
 PDC_Server_size(int backend, int fd, char *location)
 {
+    // printf("S | backend = %d, location = %s\n", backend, location);
 #if defined(PDC_HAS_S3) || defined(PDC_HAS_S3_CHECKPOINT)
     if (backend == PDC_BACKEND_S3 ||
         (backend == PDC_BACKEND_DEFAULT && default_backend_g == PDC_BACKEND_S3)) {

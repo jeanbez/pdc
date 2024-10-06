@@ -191,6 +191,7 @@ PDCregion_create(psize_t ndims, uint64_t *offset, uint64_t *size)
     p->obj      = NULL;
     p->offset   = (uint64_t *)malloc(ndims * sizeof(uint64_t));
     p->size     = (uint64_t *)malloc(ndims * sizeof(uint64_t));
+    p->backend = 0;
     p->mapping  = 0;
     p->local_id = 0;
     for (i = 0; i < ndims; i++) {

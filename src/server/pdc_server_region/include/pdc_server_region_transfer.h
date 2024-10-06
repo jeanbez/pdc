@@ -7,10 +7,10 @@ typedef struct transfer_request_all_data {
     pdcid_t *  obj_id;
     int *      obj_ndim;
     size_t *   unit;
+    uint8_t *  backend;
     int *      remote_ndim;
     char **    data_buf;
     int        n_objs;
-    uint8_t *  backend;
 } transfer_request_all_data;
 
 typedef struct pdc_transfer_request_status {

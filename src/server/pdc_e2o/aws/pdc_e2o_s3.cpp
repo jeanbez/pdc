@@ -209,7 +209,7 @@ PutObjectBuffer(char *objectName, void *buffer, uint64_t size, void *meta)
 uint64_t
 GetSize(char *objectKey)
 {
-    int64_t nbytes = 0;
+    uint64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
         Aws::S3Crt::Model::HeadObjectRequest headObj;
@@ -248,7 +248,7 @@ GetSize(char *objectKey)
 bool
 GetObject(char *objectKey, void *buffer)
 {
-    int64_t nbytes = 0;
+    uint64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
         //! Step 2: Head Object request
@@ -326,8 +326,6 @@ GetObject(char *objectKey, void *buffer)
 bool
 DownloadObject(char *objectKey)
 {
-    int64_t nbytes = 0;
-
     if (aws_s3_config.use_crt) {
 
         Aws::S3Crt::Model::GetObjectRequest request;
@@ -396,7 +394,7 @@ DownloadObject(char *objectKey)
 bool
 GetObjectRange(char *objectKey, void *buffer, uint64_t offset, uint64_t size)
 {
-    int64_t nbytes = 0;
+    uint64_t nbytes = 0;
 
     if (aws_s3_config.use_crt) {
         Aws::S3Crt::Model::GetObjectRequest request;
