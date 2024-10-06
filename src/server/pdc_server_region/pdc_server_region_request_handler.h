@@ -88,9 +88,9 @@ transfer_request_all_bulk_transfer_read_cb(const struct hg_cb_info *info)
     }
 #endif
     for (i = 0; i < request_data.n_objs; ++i) {
-        remote_reg_info->ndim   = request_data.remote_ndim[i];
-        remote_reg_info->offset = request_data.remote_offset[i];
-        remote_reg_info->size   = request_data.remote_length[i];
+        remote_reg_info->ndim    = request_data.remote_ndim[i];
+        remote_reg_info->offset  = request_data.remote_offset[i];
+        remote_reg_info->size    = request_data.remote_length[i];
         remote_reg_info->backend = local_bulk_args->in.backend;
 
         mem_size = request_data.unit[i];
@@ -219,9 +219,9 @@ transfer_request_all_bulk_transfer_write_cb(const struct hg_cb_info *info)
 #endif
 
     for (i = 0; i < request_data.n_objs; ++i) {
-        remote_reg_info->ndim   = request_data.remote_ndim[i];
-        remote_reg_info->offset = request_data.remote_offset[i];
-        remote_reg_info->size   = request_data.remote_length[i];
+        remote_reg_info->ndim    = request_data.remote_ndim[i];
+        remote_reg_info->offset  = request_data.remote_offset[i];
+        remote_reg_info->size    = request_data.remote_length[i];
         remote_reg_info->backend = local_bulk_args->in.backend;
 
 #ifdef PDC_SERVER_CACHE

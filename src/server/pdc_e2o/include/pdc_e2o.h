@@ -7,8 +7,8 @@
 #include "pdc_server.h"
 #include "pdc_client_server_common.h"
 
-uint64_t  PDC_Server_size(int backend, int fd, char *location);
-int  PDC_Server_write(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset,
-                      int seek);
-int  PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset);
-void PDC_Server_download(char *location);
+uint64_t PDC_Server_size(int backend, int fd, char *location);
+int      PDC_Server_write(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset,
+                          int seek);
+int      PDC_Server_read(int backend, int fd, char *location, void *buf, uint64_t size, uint64_t offset);
+void     PDC_Server_download(char *location);

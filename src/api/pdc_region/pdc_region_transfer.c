@@ -64,7 +64,7 @@ typedef struct pdc_transfer_request {
     // Determine unit size.
     pdc_var_type_t mem_type;
     size_t         unit;
-    uint8_t backend;
+    uint8_t        backend;
     // User data buffer
     char *buf;
     /* Used internally for 2D and 3D data */
@@ -644,9 +644,9 @@ pack_region_metadata_query(pdc_transfer_request_start_all_pkg **transfer_request
     total_buf_size = 0;
     for (i = 0; i < size; ++i) {
         // ndim + Regions + obj_id + data_server id + data partition + unit
-        total_buf_size += sizeof(int) +
-                          sizeof(uint64_t) * 2 * transfer_request[i]->transfer_request->remote_region_ndim +
-                          sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(size_t);
+        total_buf_size +=
+            sizeof(int) + sizeof(uint64_t) * 2 * transfer_request[i]->transfer_request->remote_region_ndim +
+            sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(size_t);
     }
 
     *buf_ptr = (char *)malloc(total_buf_size);
