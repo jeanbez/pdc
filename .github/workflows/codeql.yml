@@ -11,6 +11,9 @@
 #
 name: "CodeQL Advanced"
 
+env:
+  CMAKE_POLICY_VERSION_MINIMUM: 3.5
+
 on:
   push:
     branches: [ "stable" ]
