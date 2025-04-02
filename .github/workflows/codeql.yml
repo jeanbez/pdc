@@ -65,7 +65,28 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Dependencies
-      run: .github/workflows/dependencies-linux.sh
+      run: |
+        sudo apt-get update
+        sudo apt-get install libopenmpi-dev libhdf5-dev uuid-dev cmake
+
+    - name: Build PDC Dependencies
+      run: |
+        # libfabric
+        wget https://github.com/ofiwg/libfabric/archive/refs/tags/v1.12.1.tar.gz
+        tar xf v1.12.1.tar.gz
+        cd libfabric-1.12.1
+        ./autogen.sh
+        ./configure --disable-usnic --disable-mrail --disable-rstream --disable-perf --disable-efa --disable-psm2 --disable-psm --disable-verbs --disable-shm --disable-static --disable-silent-rules
+        make -j2 && sudo make install
+        cd ..
+        
+        # Mercury
+        git clone --recursive https://github.com/mercury-hpc/mercury.git
+        cd mercury
+        git checkout v2.2.0
+        mkdir build && cd build
+        cmake ../  -DCMAKE_C_COMPILER=gcc -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DNA_USE_OFI=ON -DNA_USE_SM=OFF -DMERCURY_USE_CHECKSUMS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+        make -j2 && sudo make install
 
     - name: Build PDC
       run: |
