@@ -783,7 +783,7 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     int                 i         = 0;
     char                self_addr_string[ADDR_MAX];
     char                na_info_string[NA_STRING_INFO_LEN];
-    char                hostname[HOSTNAME_LEN];
+    char                *hostname;
     struct hg_init_info init_info = {0};
 
     /* Set the default mercury transport
@@ -817,8 +817,9 @@ PDC_Server_init(int port, hg_class_t **hg_class, hg_context_t **hg_context)
     if ((hg_transport = getenv("HG_TRANSPORT")) == NULL) {
         hg_transport = default_hg_transport;
     }
-    memset(hostname, 0, HOSTNAME_LEN);
     if ((hostname = getenv("HG_HOST")) == NULL) {
+        hostname = malloc(HOSTNAME_LEN);
+        memset(hostname, 0, HOSTNAME_LEN);
         gethostname(hostname, HOSTNAME_LEN - 1);
     }
     snprintf(na_info_string, NA_STRING_INFO_LEN, "%s://%s:%d", hg_transport, hostname, port);
