@@ -3,6 +3,7 @@
 set -eu -o pipefail
 
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=FALSE
+export CFLAGS="-Wno-error=incompatible-function-pointer-types"
 
 brew install open-mpi libtool automake
 
